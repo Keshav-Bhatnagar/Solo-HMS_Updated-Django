@@ -1,0 +1,371 @@
+{% extends 'Rooms_base.html' %}
+{% load static %}
+
+{% block title %}CampusNest – Elite Campus Living Architecture{% endblock %}
+
+{% block extra_css %}
+<!-- Professional High-Performance Typography -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/landing_3d.css' %}">
+<style>
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        overflow-x: hidden;
+    }
+
+    .cn-navbar {
+        z-index: 10000;
+    }
+
+    .glow-cyan {
+        filter: drop-shadow(0 0 10px var(--tech-glow));
+    }
+
+    .glow-purple {
+        filter: drop-shadow(0 0 10px rgba(138, 43, 226, 0.4));
+    }
+
+    /* Elite Campus Map Background */
+    .blueprint-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("{% static 'images/elite_campus_exterior.png' %}") no-repeat center center;
+        background-size: cover;
+        opacity: 0.04;
+        /* Very faint for light mode */
+        z-index: -2;
+        filter: grayscale(100%) brightness(1.2) contrast(1.1);
+    }
+
+    .section-stage {
+        padding: 8rem 0;
+        position: relative;
+    }
+
+    .hero-assembly {
+        position: relative;
+        z-index: 1;
+        padding: 6rem 0;
+    }
+
+    #canvas-container {
+        display: none;
+    }
+
+    .stage-text-animate span {
+        display: inline-block;
+        transform-origin: bottom;
+    }
+
+    .realistic-frame {
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        border: 1px solid var(--outline);
+        box-shadow: var(--shadow-xl);
+        transition: transform 0.6s var(--mechanical-easing);
+        background: var(--surface-raised);
+    }
+
+    .realistic-frame:hover {
+        transform: scale(1.03) translateY(-10px);
+        border-color: var(--primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="cn-page stage-3d">
+    <div class="blueprint-bg"></div>
+    <div class="tech-grid"></div>
+
+    <!-- ============== ELITE HERO ============== -->
+    <section class="hero-assembly">
+        <div class="container">
+            <div class="assembly-core"
+                style="display: flex; align-items: center; justify-content: space-between; gap: 4rem;">
+                <div class="hero-mechanical-text" style="position: relative; flex: 1.2; z-index: 10;">
+                    <div class="hero-badge reveal-on-scroll"
+                        style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.6rem 1.2rem; background:rgba(0, 245, 255, 0.1); border:1px solid var(--tech-cyan); border-radius:var(--radius-full); color:var(--tech-cyan); font-weight:800; font-size:0.85rem; margin-bottom: 2rem; letter-spacing: 0.05em;">
+                        <i class="fa-solid fa-crown"></i> ELITE CAMPUS EDITION
+                    </div>
+                    <h1 class="hero-title stage-text-animate"
+                        style="max-width:800px; margin-bottom:1.5rem; font-size: clamp(3.5rem, 8vw, 5rem); font-weight: 900; line-height: 1; color: var(--on-bg);">
+                        <span>Architecting</span> <br>
+                        <span class="gradient-text"
+                            style="background:linear-gradient(135deg, var(--primary), #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Elite
+                            Living.</span>
+                    </h1>
+                    <p class="hero-desc"
+                        style="max-width: 550px; font-weight: 500; font-size: 1.35rem; color: var(--on-surface-muted); line-height: 1.5;">
+                        Experience world-class hostel management designed for India's premier institutions. Engineered
+                        for precision, privacy, and performance.
+                    </p>
+                    <div class="hero-actions" style="display:flex; gap:1.5rem; margin-top:3rem;">
+                        <a href="{% url 'room_allocation' %}" class="cn-btn cn-btn-primary"
+                            style="padding: 1.4rem 3.5rem; background: var(--primary); color: #fff; font-weight: 900; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); text-transform: uppercase; letter-spacing: 0.1em;">
+                            Reserve Space <i class="fa-solid fa-chevron-right" style="margin-left:10px;"></i>
+                        </a>
+                        <a href="#elite-modules" class="cn-btn cn-btn-ghost"
+                            style="padding: 1.4rem 3.5rem; border-color: var(--outline); backdrop-filter: blur(15px); color: var(--primary); font-weight: 700;">
+                            Architecture
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Elite Hostel Room Detail -->
+                <div class="floating-3d"
+                    style="flex: 1; position: relative; transform-style: preserve-3d; display: flex; justify-content: center;">
+                    <div class="realistic-frame" style="width: 100%;">
+                        <img src="{% static 'images/elite_hostel_room.png' %}" alt="Elite Hostel Room"
+                            style="width: 100%;" id="hero-photo-object">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============== ELITE MODULES ============== -->
+    <section id="elite-modules" class="section-stage">
+        <div class="container">
+            <div style="text-align:center; margin-bottom: 6rem;">
+                <span
+                    style="text-transform:uppercase; letter-spacing:0.4em; color:var(--primary); font-weight:900; font-size:0.8rem;">Tier-1
+                    Infrastructure</span>
+                <h2
+                    style="font-size: clamp(2.5rem, 5vw, 4rem); margin-top:1rem; font-weight: 900; color: var(--on-bg);">
+                    World-Class Ecosystem</h2>
+            </div>
+
+            <div class="bento-grid" style="grid-auto-rows: auto; gap: 3rem;">
+                <!-- Advanced Spatial Intelligence -->
+                <div class="mechanical-card col-span-8 reveal-on-scroll"
+                    style="min-height: 450px; display: flex; align-items: center; background: var(--surface); border: 1px solid var(--outline);">
+                    <div style="display:flex; gap: 5rem; align-items:center;">
+                        <div style="flex:1.1;">
+                            <div
+                                style="width: 60px; height: 60px; background: var(--primary-container); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 2rem;">
+                                <i class="fa-solid fa-microchip" style="font-size:2.5rem; color:var(--primary);"></i>
+                            </div>
+                            <h3
+                                style="font-size: 2.2rem; margin-bottom: 1.2rem; color: var(--on-bg); font-weight: 800;">
+                                Spatial Intelligence</h3>
+                            <p style="color:var(--on-surface-muted); font-size: 1.2rem; line-height: 1.7;">A proprietary
+                                engine localizing student needs to the finest detail. Real-time mapping for elite
+                                residences.</p>
+                        </div>
+                        <div style="flex:1;" class="realistic-frame">
+                            <img src="{% static 'images/elite_campus_exterior.png' %}" alt="Elite Campus"
+                                style="width:100%;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gourmet Dining -->
+                <div class="mechanical-card col-span-4 reveal-on-scroll"
+                    style="background: var(--surface); border: 1px solid var(--outline);">
+                    <i class="fa-solid fa-plate-wheat"
+                        style="font-size:3rem; color: #8b5cf6; margin-bottom:1.5rem;"></i>
+                    <h3 style="font-size: 1.7rem; margin-bottom: 1rem; color: var(--on-bg); font-weight: 800;">Gourmet
+                        Management</h3>
+                    <p style="color:var(--on-surface-muted); font-size: 1.1rem;">High-fidelity mess tracking with
+                        automated nutrition logs and premium catering workflows.</p>
+                </div>
+
+                <!-- Secure Mesh -->
+                <div class="mechanical-card col-span-4 reveal-on-scroll"
+                    style="background: var(--surface); border: 1px solid var(--outline);">
+                    <i class="fa-solid fa-shield-halved"
+                        style="font-size:3rem; color: var(--primary); margin-bottom:1.5rem;"></i>
+                    <h3 style="font-size: 1.7rem; margin-bottom: 1rem; color: var(--on-bg); font-weight: 800;">
+                        Architectural Security</h3>
+                    <p style="color:var(--on-surface-muted); font-size: 1.1rem;">Multi-layer authentication and
+                        smart-lock integration for absolute residential privacy.</p>
+                </div>
+
+                <!-- Premium Hub / Scholarly Mesh -->
+                <div class="mechanical-card col-span-8 reveal-on-scroll" style="background: #fdfcfb; border: 1px solid var(--outline); padding: 0; overflow: hidden; display: flex; min-height: 420px;">
+                    <div style="flex: 1; padding: 3.5rem; display: flex; flex-direction: column; justify-content: center;">
+                        <div style="width: 50px; height: 50px; background: #f1f5f9; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; border: 1px solid var(--outline);">
+                            <i class="fa-solid fa-users-viewfinder" style="font-size:1.5rem; color:var(--primary);"></i>
+                        </div>
+                        <h3 style="font-size: 2.5rem; margin-bottom: 1.5rem; color: #1e293b; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1;">Scholarly Mesh Network</h3>
+                        <p style="color: #64748b; font-size: 1.25rem; line-height: 1.6; font-weight: 500; margin-bottom: 2rem;">Connect with the brightest minds in an exclusive, high-performance social ecosystem managed with clinical precision.</p>
+                        <div style="display: flex; gap: 1rem;">
+                            <span style="padding: 0.5rem 1rem; background: #fff; border: 1px solid var(--outline); border-radius: 100px; font-size: 0.75rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em;">Private Tier</span>
+                            <span style="padding: 0.5rem 1rem; background: #fff; border: 1px solid var(--outline); border-radius: 100px; font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Elite Access</span>
+                        </div>
+                    </div>
+                    <div style="flex: 1; position: relative; background: #f8fafc; overflow: hidden;">
+                        <img src="{% static 'images/elite_hostel_dining.png' %}" alt="Elite Dining" 
+                             style="width: 100%; height: 100%; object-fit: cover; transform: scale(1.1); transition: transform 0.6s ease-out;" 
+                             onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1.1)'">
+                        <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(90deg, #fdfcfb, transparent 20%);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============== CAPACITY CONTROL STAGE ============== -->
+    <section class="section-stage reveal-on-scroll">
+        <div class="container">
+            <div class="mechanical-card"
+                style="padding: 6rem; overflow: hidden; background: var(--surface); border: 1px solid var(--outline); box-shadow: var(--shadow-xl);">
+                <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap: 7rem; align-items:center;">
+                    <div>
+                        <div
+                            style="display:inline-block; background: var(--primary-container); color: var(--primary); padding: 0.6rem 1.2rem; font-weight: 900; border-radius: var(--radius-sm); font-size: 0.8rem; border: 1px solid var(--outline); margin-bottom: 2rem;">
+                            CAPACITY MESH</div>
+                        <h2
+                            style="font-size: clamp(2.5rem, 4vw, 3.8rem); margin-bottom: 2rem; font-weight: 900; line-height: 1; color: var(--on-bg);">
+                            The Precision Control Node.</h2>
+                        <p style="color:var(--on-surface-muted); font-size: 1.3rem; line-height: 1.6;">Monitor elite
+                            resource nodes across the campus topology. Every byte, every bed, tracked in real-time.</p>
+                        <div style="margin-top: 5rem; display:flex; flex-direction:column; gap: 2rem;">
+                            <div
+                                style="display:flex; align-items:center; gap: 1.5rem; color: var(--on-bg); font-weight: 700; font-size: 1.1rem;">
+                                <div
+                                    style="width:20px; height:20px; background:var(--primary); border-radius:6px; box-shadow: 0 0 15px rgba(37, 99, 235, 0.2);">
+                                </div>
+                                <span>Prime Allocation Nodes</span>
+                            </div>
+                            <div
+                                style="display:flex; align-items:center; gap: 1.5rem; color:var(--on-surface-muted); font-size: 1.1rem;">
+                                <div
+                                    style="width:20px; height:20px; background: #8b5cf6; border-radius:6px; opacity: 0.5;">
+                                </div>
+                                <span>High-Demand Committed Assets</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status-mapper-3d"
+                        style="height: 550px; border: 1px solid var(--outline); background: radial-gradient(circle at center, var(--primary-container), transparent); position: relative;">
+                        <div class="node-grid" id="interactive-nodes">
+                            <!-- Nodes generated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<!-- High-End Animation Engines -->
+<script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://unpkg.com/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof gsap !== 'undefined') {
+            gsap.registerPlugin(ScrollTrigger);
+
+            const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
+
+            tl.from('.stage-text-animate span', {
+                opacity: 0,
+                y: 80,
+                rotateX: -35,
+                duration: 1.8,
+                stagger: 0.25,
+                delay: 0.6
+            })
+                .from('.hero-desc', { opacity: 0, y: 40, duration: 1.2 }, "-=1.2")
+                .from('.hero-actions', { opacity: 0, y: 40, duration: 1.2 }, "-=1")
+                .from('#hero-photo-object', {
+                    opacity: 0,
+                    rotateY: -20,
+                    scale: 0.9,
+                    duration: 2.5,
+                    ease: "power3.out"
+                }, "-=2");
+
+            // --- Elite Parallax Motion ---
+            document.addEventListener('mousemove', (e) => {
+                const x = (window.innerWidth / 2 - e.pageX) / 60;
+                const y = (window.innerHeight / 2 - e.pageY) / 60;
+                gsap.to('#hero-photo-object', {
+                    rotateY: x,
+                    rotateX: -y,
+                    duration: 1.5,
+                    ease: "power2.out"
+                });
+            });
+
+            const grid = document.getElementById('interactive-nodes');
+            if (grid) {
+                for (let i = 0; i < 100; i++) {
+                    const node = document.createElement('div');
+                    node.className = `status-node ${Math.random() > 0.3 ? 'available' : 'occupied'}`;
+                    gsap.set(node, {
+                        translateZ: Math.random() * 40,
+                        opacity: 0,
+                        scale: 0
+                    });
+                    grid.appendChild(node);
+                }
+
+                gsap.to('.status-node', {
+                    opacity: 1,
+                    scale: 1,
+                    stagger: {
+                        each: 0.01,
+                        from: "random"
+                    },
+                    scrollTrigger: {
+                        trigger: '.status-mapper-3d',
+                        start: "top 80%"
+                    }
+                });
+            }
+
+            document.querySelectorAll('.mechanical-card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = (y - centerY) / 40;
+                    const rotateY = (centerX - x) / 40;
+
+                    gsap.to(card, {
+                        rotateX: rotateX,
+                        rotateY: rotateY,
+                        duration: 1,
+                        ease: "power2.out"
+                    });
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    gsap.to(card, {
+                        rotateX: 0,
+                        rotateY: 0,
+                        duration: 2,
+                        ease: "elastic.out(1, 0.5)"
+                    });
+                });
+            });
+
+            document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+                gsap.from(el, {
+                    opacity: 0,
+                    y: 80,
+                    duration: 2,
+                    ease: "power4.out",
+                    scrollTrigger: {
+                        trigger: el,
+                        start: "top 95%"
+                    }
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

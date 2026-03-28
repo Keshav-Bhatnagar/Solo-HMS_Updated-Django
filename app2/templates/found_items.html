@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% block title %}Found Items - Lost & Found{% endblock %}
+{% block content %}
+<style>
+  :root {
+    --primary: #1E3A8A;
+    --secondary: #3B82F6;
+    --accent: #FBBF24;
+    --background: #F9FAFB;
+    --text: #111827;
+    --text-light: #FFFFFF;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 0 20px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+  }
+
+  /* Search Form */
+  .search-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 40px;
+    align-items: center;
+  }
+
+  .search-form input {
+    padding: 12px 20px 12px 40px;
+    border: none;
+    border-radius: 50px;
+    background: var(--text-light);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
+    flex: 1;
+  }
+
+  .search-form input:focus {
+    outline: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .search-form select {
+    padding: 12px;
+    border: none;
+    border-radius: 50px;
+    background: var(--text-light);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
+  }
+
+  .search-form button {
+    padding: 12px 25px;
+    background: #10B981;
+    border: none;
+    border-radius: 50px;
+    color: var(--text-light);
+    font-size: 1rem;
+    font-weight: 500;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .search-form button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .search-form::before {
+    content: '\f002';
+    font-family: 'FontAwesome';
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    color: var(--primary);
+    font-size: 1rem;
+  }
+
+  /* Report Button */
+  .report-btn {
+    padding: 12px 25px;
+    background: var(--accent);
+    border: none;
+    border-radius: 50px;
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .report-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Item Cards */
+  .item-card {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .item-card .card-header {
+    background: #10B981;
+    color: var(--text-light);
+    padding: 15px;
+  }
+
+  .item-card .card-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    margin: 0;
+  }
+
+  .item-card .card-body {
+    padding: 20px;
+    background: var(--text-light);
+  }
+
+  .item-card .card-text {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+
+  .item-card .card-text strong {
+    color: var(--primary);
+  }
+
+  .item-card .btn {
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    background: var(--accent);
+    border: none;
+    color: var(--text);
+    transition: background 0.3s ease;
+  }
+
+  .item-card .btn:hover {
+    background: #F59E0B;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    background: var(--text-light);
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+  }
+
+  .empty-state i {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 15px;
+  }
+
+  .empty-state p {
+    font-size: 1.1rem;
+    color: var(--text);
+  }
+
+  /* Animations */
+  .fade-in {
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 768px) {
+    .search-form {
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .search-form input, .search-form select, .search-form button {
+      width: 100%;
+    }
+
+    .report-btn {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
+
+<div class="container fade-in">
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <form method="get" class="search-form" style="position: relative;">
+        <input type="text" name="q" class="form-control" placeholder="Search items..." value="{{ query }}">
+        <select name="category" class="form-select">
+          <option value="">All Categories</option>
+          {% for value, label in form.fields.category.choices %}
+            <option value="{{ value }}" {% if category == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn">Search</button>
+      </form>
+    </div>
+    <div class="col-md-6 text-end">
+      <a href="{% url 'lost_and_found_dashboard' %}" class="report-btn">Report Found Item</a>
+    </div>
+  </div>
+
+  <div class="row">
+    {% for item in items %}
+    <div class="col-md-6 mb-4 fade-in">
+      <div class="item-card">
+        <div class="card-header">
+          <h5 class="card-title">{{ item.title }}</h5>
+        </div>
+        <div class="card-body">
+          <p class="card-text"><strong><i class='bx bx-category'></i> Category:</strong> {{ item.get_category_display }}</p>
+          <p class="card-text"><strong><i class='bx bx-calendar'></i> Date Found:</strong> {{ item.date_found }}</p>
+          <p class="card-text"><strong><i class='bx bx-map'></i> Location Found:</strong> {{ item.location }}</p>
+          <p class="card-text"><strong><i class='bx bx-info-circle'></i> Description:</strong> {{ item.description }}</p>
+          <p class="card-text"><strong><i class='bx bx-envelope'></i> Contact:</strong> {{ item.contact_info }}</p>
+          <p class="card-text"><small class="text-muted">Reported by {{ item.user.username }} on {{ item.created_at }}</small></p>
+          {% if not item.is_claimed %}
+          <a href="{% url 'claim_item' item.id %}" class="btn"><i class='bx bx-check-circle'></i> Claim This Item</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="empty-state fade-in">
+        <i class='bx bx-search-alt'></i>
+        <p>No found items match your search criteria.</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

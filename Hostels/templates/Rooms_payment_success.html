@@ -1,0 +1,152 @@
+{% extends 'Rooms_base.html' %}
+{% load static %}
+
+{% block title %}Payment Success – CampusNest{% endblock %}
+
+{% block extra_css %}
+<style>
+  .cn-success-page {
+    max-width: 600px;
+    margin: 4rem auto 6rem;
+    padding: 0 1.5rem;
+    text-align: center;
+  }
+  
+  /* Animated Checkmark */
+  .cn-success-anim { margin: 0 auto 2rem; width: 100px; height: 100px; position: relative; }
+  .cn-checkmark-circle {
+    stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 2; stroke-miterlimit: 10;
+    stroke: var(--primary); fill: none; animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  }
+  .cn-checkmark-check {
+    transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48; stroke-width: 3;
+    stroke: var(--primary); fill: none; animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+  }
+  @keyframes stroke { 100% { stroke-dashoffset: 0; } }
+
+  .cn-success-title { font-size: 2rem; font-weight: 900; color: var(--on-bg); margin-bottom: 0.5rem; }
+  .cn-success-subtitle { color: var(--on-surface-muted); font-size: 1.125rem; margin-bottom: 2rem; }
+
+  /* Dues Banner */
+  .cn-dues-banner {
+    background: var(--primary-container);
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 1rem 1.75rem;
+    border-radius: var(--radius-full);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    font-size: 0.875rem;
+    margin-bottom: 3rem;
+  }
+
+  /* Receipt Card */
+  .cn-receipt-card {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-xl);
+    padding: 3rem 2.5rem;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+    text-align: left;
+  }
+  .cn-receipt-card::before {
+    content: ''; position: absolute; top:0; left:0; width:100%; height:4px;
+    background: var(--primary);
+  }
+  .cn-receipt-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--outline);
+  }
+  .cn-receipt-header img { height: 24px; filter: grayscale(1); opacity: 0.7; }
+  .cn-va-number { font-size: 0.75rem; font-weight: 700; color: var(--on-surface-muted); background: var(--bg-subtle); padding: 0.375rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--outline); }
+  
+  .cn-info-row { display: flex; justify-content: space-between; margin-bottom: 1.25rem; font-size: 0.9375rem; }
+  .cn-info-row span { color: var(--on-surface-muted); }
+  .cn-info-row strong { color: var(--on-bg); font-weight: 600; text-align: right; }
+  
+  .cn-total-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--outline);
+  }
+  .cn-total-row span { font-size: 1rem; font-weight: 700; color: var(--on-surface-muted); }
+  .cn-total-row strong { font-size: 1.75rem; font-weight: 900; color: var(--primary); }
+
+  .cn-auth-code {
+    margin-top: 2rem; padding: 1rem; background: rgba(124,77,255,0.1); border-radius: var(--radius-md);
+    display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(124,77,255,0.2);
+  }
+  .cn-auth-code span { font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.1em; }
+  .cn-auth-code strong { font-size: 1.125rem; font-weight: 800; color: var(--on-bg); letter-spacing: 0.1em; }
+
+  /* Actions */
+  .cn-success-actions { display: flex; gap: 1rem; justify-content: center; margin-top: 3rem; flex-wrap: wrap; }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="cn-page">
+  <div class="cn-success-page">
+    
+    <div class="cn-success-anim">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+        <circle class="cn-checkmark-circle" cx="26" cy="26" r="25" />
+        <path class="cn-checkmark-check" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+      </svg>
+    </div>
+
+    <h1 class="cn-success-title">Payment Successful!</h1>
+    <p class="cn-success-subtitle">Your booking is now confirmed and secured.</p>
+
+    <div class="cn-dues-banner">
+      <i class="fa-solid fa-circle-check"></i>
+      No Dues Certificate Generated
+    </div>
+    
+    <div class="cn-receipt-card" id="printable-receipt">
+      <div class="cn-receipt-header">
+        <div style="display:flex; align-items:center; gap:0.5rem; font-weight:800; color:var(--on-bg);">
+          <i class="fa-brands fa-stripe" style="font-size:1.5rem; color:var(--primary);"></i> CampusNest
+        </div>
+        <div class="cn-va-number">VA: {{ virtual_account }}</div>
+      </div>
+      
+      <div class="cn-info-row">
+        <span>Transaction ID</span>
+        <strong>{{ payment.transaction_id }}</strong>
+      </div>
+      <div class="cn-info-row">
+        <span>Payment Gateway</span>
+        <strong>{{ payment_gateway }}</strong>
+      </div>
+      <div class="cn-info-row">
+        <span>Date & Time</span>
+        <strong>{{ payment.payment_date|date:"d M Y, H:i:s" }}</strong>
+      </div>
+      
+      <div class="cn-total-row">
+        <span>Amount Paid</span>
+        <strong>₹{{ payment.amount }}</strong>
+      </div>
+      
+      <div class="cn-auth-code">
+        <span>Authorization</span>
+        <strong>{{ auth_code }}</strong>
+      </div>
+    </div>
+
+    <div class="cn-success-actions">
+      <a href="{% url 'profiles' %}" class="cn-btn cn-btn-ghost">
+        <i class="fa-solid fa-user-circle"></i> Back to Profile
+      </a>
+      <button class="cn-btn cn-btn-primary" onclick="window.print()">
+        <i class="fa-solid fa-print"></i> Print Receipt
+      </button>
+    </div>
+
+  </div>
+</main>
+{% endblock %}

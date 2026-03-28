@@ -1,0 +1,417 @@
+{% extends 'Rooms_base.html' %}
+{% load static %}
+
+{% block title %}Room Allocation – CampusNest{% endblock %}
+
+{% block extra_css %}
+<style>
+  .cn-alloc-hero {
+    text-align: center;
+    padding: 4rem 2rem 2rem;
+  }
+  .cn-alloc-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    color: var(--on-bg);
+    margin-bottom: 0.5rem;
+  }
+  .cn-alloc-sub {
+    color: var(--on-surface-muted);
+    font-size: 1.0625rem;
+  }
+
+  /* Filter Panel */
+  .cn-filter-panel {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+    max-width: 1100px;
+    margin: 2rem auto 4rem;
+    box-shadow: var(--shadow-lg);
+  }
+  .cn-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    align-items: flex-end;
+  }
+  .cn-filter-group { display: flex; flex-direction: column; gap: 0.5rem; }
+  .cn-filter-group label {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--on-surface-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .cn-filter-group select {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: var(--bg-subtle);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-md);
+    color: var(--on-bg);
+    font-family: var(--font-body);
+    transition: var(--transition);
+    cursor: pointer;
+  }
+  .cn-filter-group select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px var(--primary-container); }
+  .cn-filter-group select:disabled { opacity: 0.5; background: var(--outline-bright); cursor: not-allowed; }
+  .btn-reset {
+    padding: 0.875rem 1.5rem;
+    background: var(--surface-highest);
+    color: var(--error);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .btn-reset:hover { background: var(--error); color: #fff; }
+
+  /* Room Grids (Injected by JS) */
+  .room-display-container {
+    max-width: 1200px;
+    margin: 0 auto 5rem;
+  }
+  .no-rooms {
+    text-align: center;
+    padding: 4rem;
+    background: var(--surface-low);
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--outline-variant);
+    color: var(--on-surface-faint);
+    font-size: 1.125rem;
+  }
+  .room-category { margin-bottom: 3rem; }
+  .room-category h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .room-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+
+  /* Room Cards (Structured SaaS Style) */
+  .room-container { perspective: none; }
+  .room-card {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    position: relative;
+    cursor: pointer;
+    transition: var(--transition);
+    overflow: hidden;
+  }
+  .room-card::before {
+    content: ''; position: absolute; top:0; left:0; width: 4px; height: 100%;
+    background: var(--outline); transition: var(--transition);
+  }
+  .room-card.available::before { background: var(--primary); opacity: 0.3; }
+  .room-card.booked::before { background: var(--on-surface-faint); }
+  .room-card.booked { opacity: 0.6; cursor: not-allowed; }
+  
+  .room-card:hover.available {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary);
+  }
+  .room-card:hover.available::before { opacity: 1; }
+
+  .room-card.selected {
+    background: var(--primary-container);
+    border-color: var(--primary);
+    box-shadow: var(--shadow-md), 0 0 0 1px var(--primary);
+  }
+  .room-card.selected::before { background: var(--primary); width: 6px; opacity: 1; }
+
+  .room-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+  .room-number { font-size: 1.5rem; font-weight: 800; color: var(--on-bg); }
+  .ac-badge {
+    font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.625rem; border-radius: var(--radius-full);
+  }
+  .ac-badge.ac { background: rgba(124,77,255,0.15); color: var(--primary); border: 1px solid rgba(124,77,255,0.3); }
+  .ac-badge.non-ac { background: rgba(250,189,0,0.15); color: var(--tertiary); border: 1px solid rgba(250,189,0,0.3); }
+
+  .room-details { display: flex; flex-direction: column; gap: 0.5rem; }
+  .capacity { font-size: 0.875rem; color: var(--on-surface-muted); }
+  .status { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+  .status.available-status { color: var(--success); }
+  .status.booked-status { color: var(--error); }
+  .price { font-size: 1.125rem; font-weight: 700; color: var(--on-bg); margin-top: 0.5rem; }
+
+  /* Allocation Form Bottom Panel */
+  .allocation-form-wrapper {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--outline);
+    padding: 1.5rem 2rem;
+    box-shadow: var(--shadow-xl);
+    z-index: 1000;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .allocation-form-wrapper.visible { transform: translateY(0); }
+  .allocation-form {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .alloc-info { display: flex; gap: 2rem; flex: 1; }
+  .alloc-col { display: flex; flex-direction: column; gap: 0.25rem; }
+  .alloc-label { font-size: 0.75rem; color: var(--on-surface-faint); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;}
+  .alloc-val { font-size: 1rem; color: var(--on-bg); font-weight: 600; }
+  @media (max-width: 768px) {
+    .allocation-form { flex-direction: column; align-items: stretch; gap: 1rem; }
+    .alloc-info { flex-direction: column; gap: 1rem; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="cn-page" style="padding-bottom: 8rem;">
+  
+  <section class="cn-alloc-hero">
+    <h1 class="cn-alloc-title">Intelligent Room Allocation</h1>
+    <p class="cn-alloc-sub">Select your hostel and floor to view real-time availability</p>
+  </section>
+
+  <!-- Filter Section -->
+  <div class="cn-filter-panel">
+    <form method="get" class="cn-filter-grid">
+      {% csrf_token %}
+      <div class="cn-filter-group">
+        <label for="hostel"><i class="fa-solid fa-building" style="margin-right:6px;"></i> Hostel</label>
+        <select id="hostel" name="hostel" required>
+          <option value="" disabled selected>Choose Hostel</option>
+          {% for hostel in hostels %}
+          <option value="{{ hostel.id }}">{{ hostel.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="cn-filter-group">
+        <label for="floor"><i class="fa-solid fa-layer-group" style="margin-right:6px;"></i> Floor</label>
+        <select id="floor" name="floor" required disabled>
+          <option value="" disabled selected>Select hostel first</option>
+        </select>
+      </div>
+
+      <div class="cn-filter-group">
+        <label for="ac_type"><i class="fa-solid fa-snowflake" style="margin-right:6px;"></i> AC Preference</label>
+        <select id="ac_type" name="ac_type">
+          <option value="">All Types</option>
+          <option value="ac">AC Rooms</option>
+          <option value="non_ac">Non-AC Rooms</option>
+        </select>
+      </div>
+
+      <button type="button" id="reset-filters" class="btn-reset">
+        <i class="fa-solid fa-rotate-right"></i> Reset
+      </button>
+    </form>
+  </div>
+
+  <!-- Room Grid Display -->
+  <div class="room-display-container">
+    <p class="no-rooms">Please select a hostel and floor to see rooms.</p>
+  </div>
+
+  <!-- Floating Sticky Action Bar -->
+  <div class="allocation-form-wrapper" id="alloc-wrapper">
+    <form method="post" class="allocation-form">
+      {% csrf_token %}
+      <input type="hidden" name="room_id" id="selected-room-id">
+      <input type="hidden" name="hostel" id="form-hostel">
+      <input type="hidden" name="floor" id="form-floor">
+      <input type="hidden" name="ac_type" id="form-ac_type">
+      <input type="hidden" name="student_name" value="{{ user.get_full_name }}">
+      <input type="hidden" name="student_roll_no" value="{{ user.roll_number }}">
+      <input type="hidden" id="selected-room-number" name="room_number">
+      <input type="hidden" id="selected-room-type" name="room_type">
+
+      <div class="alloc-info">
+        <div class="alloc-col">
+          <span class="alloc-label">Student</span>
+          <span class="alloc-val">{{ user.get_full_name }} ({{ user.roll_number }})</span>
+        </div>
+        <div class="alloc-col">
+          <span class="alloc-label">Selected Room</span>
+          <span class="alloc-val" id="display-room-name">-</span>
+        </div>
+      </div>
+      
+      <button type="submit" id="allocate-btn" class="cn-btn cn-btn-primary" disabled>
+        <i class="fa-solid fa-check"></i> Confirm Allocation
+      </button>
+    </form>
+  </div>
+
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const hostelSelect = document.getElementById('hostel');
+    const floorSelect = document.getElementById('floor');
+    const acSelect = document.getElementById('ac_type');
+    const roomContainer = document.querySelector('.room-display-container');
+    const resetFiltersBtn = document.getElementById('reset-filters');
+    const allocWrapper = document.getElementById('alloc-wrapper');
+    const allocateBtn = document.getElementById('allocate-btn');
+    const displayRoomName = document.getElementById('display-room-name');
+
+    hostelSelect.addEventListener('change', async () => {
+        if (!hostelSelect.value) {
+            floorSelect.innerHTML = '<option value="" disabled selected>Select hostel first</option>';
+            floorSelect.disabled = true;
+            roomContainer.innerHTML = '<p class="no-rooms">Please select a hostel and floor to see rooms.</p>';
+            hideForm();
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/hostel/${hostelSelect.value}/floors/`);
+            const data = await response.json();
+            
+            floorSelect.innerHTML = '<option value="" disabled selected>Select Floor</option>';
+            data.floors.forEach(floor => {
+                const option = document.createElement('option');
+                option.value = floor;
+                option.textContent = `Floor ${floor}`;
+                floorSelect.appendChild(option);
+            });
+            floorSelect.disabled = false;
+            await fetchRooms();
+        } catch (error) {
+            console.error('Error fetching floors:', error);
+            roomContainer.innerHTML = '<p class="no-rooms">Error loading floors. Please try again.</p>';
+        }
+    });
+
+    async function fetchRooms() {
+        const hostelId = hostelSelect.value;
+        const floor = floorSelect.value;
+        const acType = acSelect.value || '';
+
+        if (!hostelId || !floor) {
+            roomContainer.innerHTML = '<p class="no-rooms">Please select a hostel and floor to see rooms.</p>';
+            hideForm();
+            return;
+        }
+
+        try {
+            const params = new URLSearchParams({ hostel: hostelId, floor: floor, ac_type: acType });
+            document.getElementById('form-hostel').value = hostelId;
+            document.getElementById('form-floor').value = floor;
+            document.getElementById('form-ac_type').value = acType;
+
+            const response = await fetch(`{% url 'get_available_rooms' %}?${params}`);
+            const data = await response.json();
+            updateRoomDisplay(data.rooms);
+            hideForm(); // reset selection on fetch
+        } catch (error) {
+            roomContainer.innerHTML = '<p class="no-rooms">Error loading rooms. Please try again.</p>';
+        }
+    }
+
+    function updateRoomDisplay(rooms) {
+        roomContainer.innerHTML = '';
+
+        const categories = {
+            'single': { label: 'Single Seater', icon: 'fa-user' },
+            'double': { label: 'Double Sharing', icon: 'fa-user-group' },
+            'four': { label: '4-Sharing Rooms', icon: 'fa-users' }
+        };
+
+        let hasRooms = false;
+        Object.entries(categories).forEach(([type, { label, icon }]) => {
+            const filteredRooms = rooms.filter(room => room.type === type);
+            if (filteredRooms.length > 0) hasRooms = true;
+            
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = `room-category ${type}-sharing`;
+            categoryDiv.innerHTML = `<h3><i class="fa-solid ${icon}"></i> ${label}</h3><div class="room-grid" id="${type}-sharing-grid"></div>`;
+            roomContainer.appendChild(categoryDiv);
+
+            const grid = categoryDiv.querySelector('.room-grid');
+            if (filteredRooms.length === 0) {
+                grid.innerHTML = '<div style="color:var(--on-surface-faint); font-size:0.875rem;">No rooms of this type currently available.</div>';
+            } else {
+                filteredRooms.forEach(room => {
+                    const roomCard = document.createElement('div');
+                    roomCard.className = `room-card ${room.beds_left > 0 ? 'available' : 'booked'}`;
+                    roomCard.dataset.roomId = room.id;
+                    roomCard.innerHTML = `
+                        <div class="room-header">
+                            <span class="room-number">${room.number}</span>
+                            <span class="ac-badge ${room.ac_type}">${room.ac_type.toUpperCase()}</span>
+                        </div>
+                        <div class="room-details">
+                            <div class="capacity"><i class="fa-solid fa-bed" style="margin-right:4px;"></i>${room.type === 'single' ? '1' : room.type === 'double' ? '2' : '4'} beds</div>
+                            <div class="availability"><span class="status ${room.beds_left > 0 ? 'available-status' : 'booked-status'}">${room.beds_left > 0 ? 'Available' : 'Sold Out'}</span></div>
+                            <div class="price">₹${room.price}/mo</div>
+                        </div>
+                    `;
+                    grid.appendChild(roomCard);
+                });
+            }
+        });
+
+        if (!hasRooms) roomContainer.innerHTML = '<p class="no-rooms">No rooms match your current filters.</p>';
+
+        document.querySelectorAll('.room-card.available').forEach(card => card.addEventListener('click', handleRoomSelection));
+    }
+
+    function handleRoomSelection(event) {
+        const roomCard = event.currentTarget;
+        const roomId = roomCard.dataset.roomId;
+        if (!roomCard.classList.contains('available')) return;
+
+        document.querySelectorAll('.room-card').forEach(c => c.classList.remove('selected'));
+        roomCard.classList.add('selected');
+        
+        const roomNumber = roomCard.querySelector('.room-number').textContent;
+        displayRoomName.textContent = `Room ${roomNumber}`;
+        document.getElementById('selected-room-id').value = roomId;
+        document.getElementById('selected-room-number').value = roomNumber;
+        document.getElementById('selected-room-type').value = roomCard.closest('.room-category').classList.contains('four-sharing') ? 'four' :
+            roomCard.closest('.room-category').classList.contains('double-sharing') ? 'double' : 'single';
+        
+        allocateBtn.disabled = false;
+        allocWrapper.classList.add('visible');
+    }
+
+    function hideForm() {
+        allocWrapper.classList.remove('visible');
+        allocateBtn.disabled = true;
+        displayRoomName.textContent = '-';
+        document.getElementById('selected-room-id').value = '';
+    }
+
+    [floorSelect, acSelect].forEach(select => select.addEventListener('change', fetchRooms));
+
+    resetFiltersBtn.addEventListener('click', () => {
+        hostelSelect.value = '';
+        floorSelect.innerHTML = '<option value="" disabled selected>Select hostel first</option>';
+        floorSelect.disabled = true;
+        acSelect.value = '';
+        roomContainer.innerHTML = '<p class="no-rooms">Please select a hostel and floor to see rooms.</p>';
+        hideForm();
+    });
+});
+</script>
+{% endblock %}

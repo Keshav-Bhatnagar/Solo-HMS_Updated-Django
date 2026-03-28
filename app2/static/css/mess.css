@@ -1,0 +1,169 @@
+/* mess.css */
+.mess-container {
+    width: 100%;
+    padding: 1rem;
+}
+
+.mess-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.mess-header h1 {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1.8rem;
+    color: var(--primary);
+}
+
+.mess-header p {
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+
+.today-menu, .weekly-menu, .mess-rules {
+    margin-bottom: 1.5rem;
+}
+
+h2 {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin-bottom: 0.8rem;
+}
+
+h3 {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1rem;
+    color: var(--secondary);
+}
+
+.menu-card {
+    background: var(--card-dark);
+    padding: 1rem;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.menu-card:hover {
+    box-shadow: var(--glow);
+}
+
+.menu-card p {
+    color: var(--text-light);
+    font-size: 0.8rem;
+}
+
+.menu-card small {
+    color: var(--text-light);
+    font-size: 0.7rem;
+}
+
+.meal-type {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.meal-type.breakfast {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.meal-type.lunch {
+    background: var(--warning);
+    color: var(--bg-dark);
+}
+
+.meal-type.dinner {
+    background: var(--secondary);
+    color: var(--white);
+}
+
+.menu-tabs {
+    margin-bottom: 1rem;
+}
+
+.tab-header {
+    display: flex;
+    gap: 0.3rem;
+    margin-bottom: 0.6rem;
+    overflow-x: auto;
+}
+
+.tab-btn {
+    padding: 0.3rem 0.7rem;
+    background: var(--bg-dark);
+    border-radius: 3px;
+    text-decoration: none;
+    color: var(--text-dark);
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.8rem;
+    transition: var(--transition);
+}
+
+.tab-btn.active, .tab-btn:hover {
+    background: var(--primary);
+    color: var(--white);
+    box-shadow: var(--glow);
+}
+
+.tab-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 0.8rem;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 1rem;
+    background: var(--card-dark);
+    box-shadow: var(--shadow);
+    color: var(--text-light);
+}
+
+.empty-state i {
+    font-size: 1.5rem;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+}
+
+.rules-list {
+    list-style: none;
+    padding: 0;
+}
+
+.rules-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0;
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+.rules-list i {
+    color: var(--success);
+}
+
+.slide-in {
+    animation: slideIn 0.4s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .mess-container {
+        padding: 0.8rem;
+    }
+
+    .tab-content {
+        grid-template-columns: 1fr;
+    }
+}

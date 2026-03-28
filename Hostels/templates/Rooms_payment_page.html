@@ -1,0 +1,275 @@
+{% extends 'Rooms_base.html' %}
+{% load static %}
+
+{% block title %}Checkout – CampusNest{% endblock %}
+
+{% block extra_css %}
+<style>
+  .cn-payment-page {
+    max-width: 1000px;
+    margin: 4rem auto 6rem;
+    padding: 0 2rem;
+  }
+  .cn-payment-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+  }
+  .cn-payment-subtitle {
+    color: var(--primary);
+    font-size: 1.125rem;
+    margin-bottom: 3rem;
+  }
+
+  .cn-payment-grid {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 3rem;
+  }
+  @media (max-width: 900px) {
+    .cn-payment-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Order Summary */
+  .cn-summary-card {
+    background: var(--surface-raised);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+    height: fit-content;
+    box-shadow: var(--shadow-sm);
+  }
+  .cn-summary-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 2rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; }
+  .cn-summary-item { display: flex; justify-content: space-between; margin-bottom: 1.25rem; color: var(--on-surface-muted); }
+  .cn-summary-item strong { color: var(--on-bg); font-weight: 600; }
+  .cn-summary-total {
+    display: flex; justify-content: space-between;
+    margin-top: 2rem; padding-top: 1.5rem;
+    border-top: 1px solid var(--outline-variant);
+    font-size: 1.5rem; font-weight: 900; color: var(--on-bg);
+  }
+
+  /* Payment Form Elements */
+  .cn-payment-card {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+  }
+  .cn-payment-card::before {
+    content: ''; position: absolute; top:0; left:0; width:100%; height:4px;
+    background: var(--primary);
+  }
+  .cn-input-group { margin-bottom: 1.5rem; }
+  .cn-input-label { display: block; font-size: 0.8125rem; font-weight: 700; color: var(--on-surface-faint); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+  
+  /* Stripe Element Container */
+  /* Stripe Element Container */
+  #card-element {
+    background: var(--bg-subtle);
+    border: 1px solid var(--outline);
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+  }
+  #card-element.StripeElement--focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-container); }
+  #card-errors { color: var(--error); font-size: 0.875rem; margin-top: 0.75rem; font-weight: 600; }
+
+  .cn-pay-btn {
+    width: 100%;
+    margin-top: 2rem;
+    padding: 1.25rem;
+    font-size: 1.125rem;
+    font-weight: 800;
+  }
+  
+  /* Professional Loader Overlay */
+  .cn-loader-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg);
+    opacity: 0.95;
+    backdrop-filter: blur(10px);
+    z-index: 9999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .cn-loader-overlay.active { opacity: 1; pointer-events: all; }
+  
+  .cn-spinner {
+    width: 80px; height: 80px;
+    border: 4px solid rgba(124,77,255,0.2);
+    border-top: 4px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 2rem;
+  }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  .cn-loader-text {
+    font-size: 1.5rem; font-weight: 800; color: var(--on-bg); margin-bottom: 0.5rem;
+  }
+  .cn-loader-subtext { color: var(--on-surface-muted); font-size: 1rem; }
+
+  .secure-badge {
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    color: var(--success); font-weight: 700; margin-top: 2rem; font-size: 0.875rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="cn-page">
+  <div class="cn-payment-page">
+    <h1 class="cn-payment-title">Complete Your Booking</h1>
+    <p class="cn-payment-subtitle">Secure Payment via Stripe</p>
+
+    <div class="cn-payment-grid">
+      <!-- Payment Form Area -->
+      <div>
+        <div class="cn-payment-card">
+          <h2 style="font-size:1.5rem; font-weight:800; margin-bottom:2rem;"><i class="fa-solid fa-credit-card" style="color:var(--primary);"></i> Payment Details</h2>
+          
+          <form id="payment-form">
+            <div class="cn-input-group">
+              <div id="payment-element">
+                <!-- Stripe Payment Element dynamically injected here -->
+              </div>
+              <div id="payment-errors" role="alert" style="color:var(--error); margin-top:1rem; font-size:0.875rem;"></div>
+            </div>
+
+            <button type="submit" id="submit" class="cn-btn cn-btn-primary cn-pay-btn">
+              <span id="button-text">Pay ₹{{ amount_due }}</span>
+              <div class="spinner hidden" id="spinner"></div>
+            </button>
+            <div class="secure-badge">
+              <i class="fa-solid fa-lock"></i> 256-bit SSL Encrypted
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Order Summary Area -->
+      <div>
+        <div class="cn-summary-card">
+          <h3 class="cn-summary-title">Order Summary</h3>
+          
+          <div class="cn-summary-item">
+            <span>Hostel</span>
+            <strong>{{ allocation.room.hostel.name }}</strong>
+          </div>
+          <div class="cn-summary-item">
+            <span>Room</span>
+            <strong>Room {{ allocation.room.room_number }}</strong>
+          </div>
+          <div class="cn-summary-item">
+            <span>Room Type</span>
+            <strong>{{ allocation.room.get_ac_type_display }}</strong>
+          </div>
+          <div class="cn-summary-item">
+            <span>Duration</span>
+            <strong>6 Months Advance</strong>
+          </div>
+          <div class="cn-summary-item" style="border-bottom:1px dashed var(--glass-border); padding-bottom:1.5rem; margin-bottom:0;">
+            <span>Monthly Rent</span>
+            <strong>₹{{ allocation.room.price }}</strong>
+          </div>
+
+          <div class="cn-summary-total">
+            <span>Total Due</span>
+            <span style="color:var(--primary);">₹{{ amount_due }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="cn-loader-overlay" id="loader">
+    <div class="cn-spinner"></div>
+    <div class="cn-loader-text">Processing Payment...</div>
+    <div class="cn-loader-subtext">Please do not close or refresh this page.</div>
+  </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  const stripe = Stripe('{{ stripe_public_key }}');
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  
+  let elements;
+  const loader = document.getElementById('loader');
+  const form = document.getElementById('payment-form');
+  const messageContainer = document.querySelector('#payment-errors');
+
+  async function initialize() {
+    loader.classList.add('active');
+    
+    // 1. Fetch Payment Intent from backend
+    try {
+      const response = await fetch("{% url 'create_payment_intent' %}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
+      });
+      const { clientSecret, transactionId } = await response.json();
+
+      const appearance = {
+        theme: isLight ? 'stripe' : 'night',
+        variables: {
+          colorPrimary: '#2563eb',
+          fontFamily: 'Inter, system-ui, sans-serif',
+          borderRadius: '12px',
+        }
+      };
+
+      elements = stripe.elements({ appearance, clientSecret });
+
+      const paymentElementOptions = {
+        layout: "tabs",
+      };
+
+      const paymentElement = elements.create("payment", paymentElementOptions);
+      paymentElement.mount("#payment-element");
+      
+      form.dataset.transactionId = transactionId;
+      loader.classList.remove('active');
+    } catch (e) {
+      console.error(e);
+      messageContainer.textContent = "Institutional Billing Error: System offline.";
+      loader.classList.remove('active');
+    }
+  }
+
+  initialize();
+
+  form.addEventListener('submit', async function(ev) {
+    ev.preventDefault();
+    loader.classList.add('active');
+
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        // Redirect to success page on completion
+        return_url: `${window.location.origin}/payment/success/${form.dataset.transactionId}/`,
+      },
+    });
+
+    // This point will only be reached if there is an immediate error when
+    // confirming the payment. Otherwise, your customer will be redirected to
+    // your `return_url`. For some payment methods like bank transfer, they
+    // will be redirected to an intermediate site first to authorize the payment, then
+    // redirected to the `return_url`.
+    if (error.type === "card_error" || error.type === "validation_error") {
+      messageContainer.textContent = error.message;
+    } else {
+      messageContainer.textContent = "An unexpected error occurred.";
+    }
+
+    loader.classList.remove('active');
+  });
+</script>
+{% endblock %}

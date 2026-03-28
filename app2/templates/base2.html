@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HostelConnect</title>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="shortcut icon" href="../static/images/Favicon.png" type="image/x-icon">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1E3A8A;
+      --secondary: #3B82F6;
+      --background: #F9FAFB;
+      --dark-bg: #1F2937;
+      --text: #111827;
+      --text-light: #FFFFFF;
+      --accent: #FBBF24;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    body.dark {
+      --background: #1F2937;
+      --text: #D1D5DB;
+      --text-light: #F9FAFB;
+    }
+
+    /* Navbar */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .nav-bar {
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+
+    /* Enhanced Dropdown Styles */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-light);
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .dropdown-toggle:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    }
+    .dropdown-toggle::after {
+  display: none !important;
+}
+
+    .dropdown-menu {
+      position: absolute;
+      top: 120%;
+      left: 0;
+      min-width: 220px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dropdown-menu.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: var(--text-light);
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      position: relative;
+      text-decoration: none;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(8px);
+    }
+
+    .dropdown-item i {
+      font-size: 20px;
+      width: 24px;
+      color: var(--accent);
+    }
+
+    .badge {
+      position: absolute;
+      right: 16px;
+      background: var(--accent);
+      color: var(--text);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .bx-chevron-down {
+      font-size: 18px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .dropdown-toggle.active .bx-chevron-down {
+      transform: rotate(180deg);
+    }
+
+    /* Rest of navbar styles... */
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-links li {
+      list-style: none;
+      margin: 0 15px;
+    }
+
+    .nav-links li a {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-light);
+      text-decoration: none;
+      position: relative;
+      padding-bottom: 5px;
+    }
+
+    .nav-links li a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: 0;
+      left: 0;
+      background-color: var(--accent);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links li a:hover::after {
+      width: 100%;
+    }
+
+    /* Dark mode and search box styles... */
+
+    .darkLight-searchBox {
+      display: flex;
+      align-items: center;
+    }
+
+    .dark-light, .searchToggle {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0 5px;
+    }
+
+    .dark-light i, .searchToggle i {
+      color: var(--text-light);
+      font-size: 20px;
+    }
+
+    /* Footer styles... */
+
+    .gnav-footer {
+      background: var(--dark-bg);
+      color: var(--text-light);
+      padding: 40px 20px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Responsive styles... */
+
+    @media (max-width: 768px) {
+      .nav-bar {
+        padding: 0 15px;
+      }
+
+      .nav-links {
+        position: fixed;
+        top: 80px;
+        left: -100%;
+        width: 100%;
+        height: 100vh;
+        background: var(--dark-bg);
+        flex-direction: column;
+        padding: 20px;
+        transition: left 0.3s ease;
+      }
+
+      .nav-links.active {
+        left: 0;
+      }
+
+      .nav-links li {
+        margin: 20px 0;
+      }
+
+      .dropdown-menu {
+        min-width: 200px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-10px);
+      }
+
+      .dropdown-menu.show {
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-bar">
+      <div class="logo navLogo dropdown">
+        <a href="#" class="dropdown-toggle" onclick="toggleLogoDropdown(event)">
+          CampusConnect <i class='bx bx-chevron-down'></i>
+        </a>
+        <ul class="dropdown-menu" id="logoDropdown">
+          <li><a href="{% url 'index' %}" class="dropdown-item">
+            <i class='bx bx-building-house'></i> CampusNest
+            
+          </a></li>
+          
+        </ul>
+      </div>
+      
+      <div class="menu">
+        <ul class="nav-links">
+          <li><a href="{% url 'app2index' %}">Home</a></li>
+          <li><a href="{% url 'events' %}">Events</a></li>
+          <li><a href="{% url 'mess' %}">Mess</a></li>
+          <li><a href="{% url 'lost_and_found_dashboard' %}">Lost & Found</a></li>
+          <li><a href="{% url 'discussion_center' %}">Discussion</a></li>
+        </ul>
+      </div>
+      <div class="darkLight-searchBox">
+        <div class="dark-light">
+          <i class='bx bx-moon moon'></i>
+          <i class='bx bx-sun sun'></i>
+        </div>
+        <div class="searchBox">
+          <div class="searchToggle">
+            <i class='bx b</div>x-x cancel'></i>
+            <i class='bx bx-search search'></i>
+          </div>
+          <div class="search-field">
+            <input type="text" placeholder="Search...">
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div style="padding-top: 100px;">
+    {% block content %}
+    {% endblock %}
+  </div>
+  <footer class="gnav-footer">
+    <div class="gnav-footer-row">
+      <div class="gnav-footer-brand fade-in">CampusConnect</div>
+      <div class="gnav-footer-col fade-in">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#"><i class='bx bx-home'></i> Home</a></li>
+          <li><a href="#"><i class='bx bx-calendar'></i> Events</a></li>
+          <li><a href="#"><i class='bx bx-restaurant'></i> Mess</a></li>
+          <li><a href="#"><i class='bx bx-search-alt'></i> Lost & Found</a></li>
+        </ul>
+      </div>
+      <div class="gnav-footer-col fade-in">
+        <h4>About</h4>
+        <ul>
+          <li><a href="#"><i class='bx bx-group'></i> Our Team</a></li>
+          <li><a href="#"><i class='bx bx-target-lock'></i> Mission</a></li>
+          <li><a href="#"><i class='bx bx-bulb'></i> Vision</a></li>
+        </ul>
+      </div>
+      <div class="gnav-footer-col fade-in">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="#"><i class='bx bx-support'></i> Support</a></li>
+          <li><a href="#"><i class='bx bx-message-square-dots'></i> Feedback</a></li>
+          <li><a href="#"><i class='bx bx-envelope'></i> Contact</a></li>
+        </ul>
+      </div>
+      <div class="gnav-footer-col fade-in">
+        <h4>Newsletter</h4>
+        <form>
+          <input type="email" placeholder="Your email" style="padding: 10px; width: 100%; border-radius: 5px; border: none; margin-bottom: 10px;">
+          <button type="submit" style="padding: 10px 20px; background: var(--accent); border: none; border-radius: 5px; color: var(--text); cursor: pointer;">Subscribe</button>
+        </form>
+      </div>
+    </div>
+    <div class="gnav-footer-row gnav-footer-bottom fade-in">
+      <p>&copy; 2025 CampusConnect. All rights reserved.</p>
+    </div>
+  </footer>
+
+
+  <script>
+    // Enhanced Dropdown Functionality
+    function toggleLogoDropdown(event) {
+      event.preventDefault();
+      const dropdown = document.getElementById("logoDropdown");
+      dropdown.classList.toggle("show");
+      event.currentTarget.classList.toggle("active");
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      const dropdown = document.getElementById("logoDropdown");
+      const toggle = document.querySelector(".dropdown-toggle");
+      if (!e.target.closest('.dropdown')) {
+        dropdown.classList.remove("show");
+        toggle.classList.remove("active");
+      }
+    });
+
+    // Original navbar functionality
+    const body = document.querySelector("body"),
+          nav = document.querySelector("nav"),
+          modeToggle = document.querySelector(".dark-light"),
+          searchToggle = document.querySelector(".searchToggle"),
+          sidebarOpen = document.querySelector(".sidebarOpen"),
+          sidebarClose = document.querySelector(".siderbarClose");
+
+    let getMode = localStorage.getItem("mode");
+    if (getMode && getMode === "dark-mode") {
+      body.classList.add("dark");
+    }
+
+    modeToggle.addEventListener("click", () => {
+      modeToggle.classList.toggle("active");
+      body.classList.toggle("dark");
+      localStorage.setItem("mode", body.classList.contains("dark") ? "dark-mode" : "light-mode");
+    });
+
+    searchToggle.addEventListener("click", () => {
+      searchToggle.classList.toggle("active");
+    });
+
+    // Mobile menu functionality
+    sidebarOpen.addEventListener("click", () => {
+      nav.classList.add("active");
+      document.querySelector(".nav-links").classList.add("active");
+    });
+
+    body.addEventListener("click", e => {
+      let clickedElm = e.target;
+      if (!clickedElm.classList.contains("sidebarOpen") && !clickedElm.classList.contains("menu") && !clickedElm.closest(".nav-links")) {
+        nav.classList.remove("active");
+        document.querySelector(".nav-links").classList.remove("active");
+      }
+    });
+    // Get the search input and the content to be searched
+const searchInput = document.querySelector(".search-field input");
+const content = document.querySelector(".nav-links");
+
+// Function to filter the content based on the search query
+function filterContent(query) {
+  const links = content.querySelectorAll("li");
+  links.forEach(link => {
+    const text = link.textContent.toLowerCase();
+    if (text.includes(query.toLowerCase())) {
+      link.style.display = "block";
+    } else {
+      link.style.display = "none";
+    }
+  });
+}
+
+// Listen for the search input
+searchInput.addEventListener("input", () => {
+  const query = searchInput.value.trim();
+  filterContent(query);
+});
+
+// Clear the search input when the cancel button is clicked
+document.querySelector(".searchToggle .bx-x").addEventListener("click", () => {
+  searchInput.value = "";
+  filterContent("");
+});
+  </script>
+</body>
+</html>

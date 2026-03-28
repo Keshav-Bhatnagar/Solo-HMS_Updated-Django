@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Discussion Center – CampusConnect{% endblock %}
+
+{% block extra_css %}
+<style>
+  .discussion-page { padding: 4rem 1.5rem; max-width: 1000px; margin: 0 auto; height: calc(100vh - 72px); display: flex; flex-direction: column; }
+  
+  .discussion-header { margin-bottom: 2rem; }
+  .discussion-header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.04em; }
+
+  /* Chat Interface */
+  .chat-container {
+    flex-grow: 1;
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-xl);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .chat-messages {
+    flex-grow: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background: var(--bg-subtle);
+  }
+
+  .msg-wrapper { display: flex; flex-direction: column; max-width: 80%; }
+  .msg-self { align-self: flex-end; align-items: flex-end; }
+  .msg-other { align-self: flex-start; align-items: flex-start; }
+
+  .msg-meta { font-size: 0.75rem; font-weight: 600; color: var(--on-surface-faint); margin-bottom: 0.25rem; display: flex; gap: 0.5rem; }
+  
+  .msg-bubble {
+    padding: 0.875rem 1.25rem;
+    border-radius: var(--radius-lg);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    position: relative;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .msg-self .msg-bubble {
+    background: var(--primary);
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+  
+  .msg-other .msg-bubble {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    color: var(--on-bg);
+    border-bottom-left-radius: 4px;
+  }
+
+  .msg-notification .msg-bubble {
+    background: var(--warning);
+    border: none;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    max-width: 100%;
+    align-self: center;
+    border-radius: var(--radius-full);
+    padding: 0.25rem 1.5rem;
+    font-size: 0.8125rem;
+  }
+
+  /* Chat Input Area */
+  .chat-input-area {
+    padding: 1.5rem;
+    background: var(--surface);
+    border-top: 1px solid var(--outline);
+  }
+  
+  .msg-form { display: flex; gap: 1rem; }
+  .msg-input {
+    flex-grow: 1; padding: 0.75rem 1.25rem; border-radius: var(--radius-md);
+    border: 1px solid var(--outline); background: var(--bg-subtle);
+    color: var(--on-bg); font-family: var(--font-body); transition: var(--transition);
+  }
+  .msg-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-container); }
+
+  /* Scrollbar for chat */
+  .chat-messages::-webkit-scrollbar { width: 6px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--outline); border-radius: 10px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="discussion-page">
+  <header class="discussion-header">
+    <h1 class="gradient-text">Discussion Hub 💬</h1>
+    <p style="color:var(--on-surface-muted);">General room for all residents. Keep it friendly!</p>
+  </header>
+
+  <div class="chat-container">
+    <div class="chat-messages" id="chat-window">
+      {% for msg in chat_messages %}
+        {% if msg.is_notification %}
+           <div class="msg-wrapper msg-notification">
+             <div class="msg-bubble">{{ msg.message }}</div>
+           </div>
+        {% else %}
+           <div class="msg-wrapper {% if msg.user == request.user %}msg-self{% else %}msg-other{% endif %}">
+             <div class="msg-meta">
+               <span>{{ msg.user.get_full_name|default:msg.user.username }}</span>
+               <span>• {{ msg.timestamp|timesince }} ago</span>
+             </div>
+             <div class="msg-bubble">
+               {{ msg.message }}
+             </div>
+           </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="chat-input-area">
+      <form method="POST" class="msg-form" id="chat-form">
+        {% csrf_token %}
+        <input type="text" name="message" id="id_message" class="msg-input" placeholder="Type your message..." required autocomplete="off">
+        <button type="submit" class="cn-btn cn-btn-primary">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  const chatWindow = document.getElementById('chat-window');
+  const scrollBottom = () => { chatWindow.scrollTop = chatWindow.scrollHeight; };
+  
+  // Initial scroll
+  scrollBottom();
+
+  // Async polling for new messages
+  let isUpdating = false;
+  setInterval(async () => {
+    if (isUpdating) return;
+    isUpdating = true;
+    try {
+      const resp = await fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      if (resp.ok) {
+        const html = await resp.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const newContent = doc.getElementById('chat-window').innerHTML;
+        
+        if (newContent !== chatWindow.innerHTML) {
+          const wasAtBottom = chatWindow.scrollHeight - chatWindow.scrollTop <= chatWindow.clientHeight + 100;
+          chatWindow.innerHTML = newContent;
+          if (wasAtBottom) scrollBottom();
+        }
+      }
+    } catch (e) {
+      console.error("Polling error:", e);
+    } finally {
+      isUpdating = false;
+    }
+  }, 3000);
+</script>
+{% endblock %}

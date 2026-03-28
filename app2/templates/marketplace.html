@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Peer-to-Peer Marketplace | CampusConnect{% endblock %}
+
+{% block content %}
+<div class="cn-marketplace-header">
+  <div class="cn-header-content">
+    <span class="cn-badge">Institutional Economy</span>
+    <h1>Student Marketplace</h1>
+    <p>Secure peer-to-peer trading within the CampusNest network.</p>
+  </div>
+  <div class="cn-header-actions">
+    <a href="{% url 'list_item' %}" class="cn-btn cn-btn-primary">
+      <i class="fa-solid fa-plus"></i> List an Item
+    </a>
+  </div>
+</div>
+
+<div class="cn-marketplace-filters">
+  <form method="GET" class="cn-filter-bar">
+    <div class="cn-search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" name="q" placeholder="Search institutional listings..." value="{{ query }}">
+    </div>
+    
+    <div class="cn-category-filters">
+      <a href="{% url 'marketplace' %}" class="cn-filter-chip {% if not selected_category %}active{% endif %}">All</a>
+      {% for cat in categories %}
+        <a href="?category={{ cat }}" class="cn-filter-chip {% if selected_category == cat %}active{% endif %}">{{ cat }}</a>
+      {% endfor %}
+    </div>
+  </form>
+</div>
+
+<div class="cn-marketplace-grid">
+  {% for item in items %}
+  <div class="cn-item-card" data-category="{{ item.category }}">
+    <div class="cn-item-image">
+      {% if item.image %}
+        <img src="{{ item.image.url }}" alt="{{ item.title }}">
+      {% else %}
+        <div class="cn-item-placeholder">
+          <i class="fa-solid fa-box-open"></i>
+        </div>
+      {% endif %}
+      <span class="cn-item-condition">{{ item.condition }}</span>
+    </div>
+    <div class="cn-item-details">
+      <div class="cn-item-meta">
+        <span class="cn-item-cat">{{ item.category }}</span>
+        <span class="cn-item-date">{{ item.created_at|date:"M d" }}</span>
+      </div>
+      <h3>{{ item.title }}</h3>
+      <p class="cn-item-desc">{{ item.description|truncatechars:80 }}</p>
+      <div class="cn-item-footer">
+        <span class="cn-item-price">₹{{ item.price }}</span>
+        <button class="cn-btn cn-btn-ghost cn-btn-sm contact-seller" 
+                data-email="{{ item.seller.email }}"
+                onclick="alert('Contact Institutional Seller: ' + this.dataset.email)">
+          Contact
+        </button>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="cn-empty-state">
+    <i class="fa-solid fa-shop-slash"></i>
+    <h2>No Institutional Listings Found</h2>
+    <p>Try broadening your search or be the first to list an item.</p>
+    <a href="{% url 'list_item' %}" class="cn-btn cn-btn-outline">Start Listing</a>
+  </div>
+  {% endfor %}
+</div>
+
+<style>
+.cn-marketplace-header {
+  padding: 4rem 2rem;
+  background: var(--surface);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--outline);
+}
+
+.cn-marketplace-filters {
+  padding: 1.5rem 2rem;
+  background: var(--surface-low);
+  position: sticky;
+  top: 70px;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+
+.cn-filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.cn-search-box {
+  position: relative;
+  flex: 1;
+}
+
+.cn-search-box i {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--on-surface-muted);
+}
+
+.cn-search-box input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  background: var(--surface-card);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-md);
+  color: var(--on-surface);
+}
+
+.cn-category-filters {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.cn-filter-chip {
+  padding: 0.5rem 1rem;
+  background: var(--surface-card);
+  border: 1px solid var(--outline);
+  border-radius: 100px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  transition: var(--transition);
+  color: var(--on-surface-muted);
+}
+
+.cn-filter-chip.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.cn-marketplace-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 3rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.cn-item-card {
+  background: var(--surface-card);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.cn-item-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary);
+}
+
+.cn-item-image {
+  height: 200px;
+  position: relative;
+  background: var(--surface-variant);
+}
+
+.cn-item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cn-item-placeholder {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: var(--on-surface-faint);
+}
+
+.cn-item-condition {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.25rem 0.75rem;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  border-radius: 100px;
+  font-size: 0.75rem;
+}
+
+.cn-item-details {
+  padding: 1.5rem;
+}
+
+.cn-item-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.cn-item-cat {
+  color: var(--primary);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.cn-item-date {
+  color: var(--on-surface-muted);
+}
+
+.cn-item-details h3 {
+  font-size: 1.125rem;
+  margin-bottom: 0.75rem;
+}
+
+.cn-item-desc {
+  font-size: 0.875rem;
+  color: var(--on-surface-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.cn-item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--outline);
+}
+
+.cn-item-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--on-surface);
+}
+
+.cn-empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 5rem 2rem;
+}
+
+.cn-empty-state i {
+  font-size: 4rem;
+  color: var(--on-surface-faint);
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .cn-marketplace-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 2rem;
+  }
+}
+</style>
+{% endblock %}

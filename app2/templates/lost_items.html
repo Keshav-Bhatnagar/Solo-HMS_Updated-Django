@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Lost Items - Lost & Found{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <form method="get" class="d-flex">
+            <input type="text" name="q" class="form-control me-2" placeholder="Search items..." value="{{ query }}">
+            <select name="category" class="form-select me-2">
+                <option value="">All Categories</option>
+                {% for value, label in form.fields.category.choices %}
+                    <option value="{{ value }}" {% if category == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{% url 'lost_and_found_dashboard' %}" class="btn btn-primary">Report Lost Item</a>
+    </div>
+</div>
+
+<div class="row">
+    {% for item in items %}
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">{{ item.title }}</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text"><strong>Category:</strong> {{ item.get_category_display }}</p>
+                <p class="card-text"><strong>Date Lost:</strong> {{ item.date_lost }}</p>
+                <p class="card-text"><strong>Location:</strong> {{ item.location }}</p>
+                <p class="card-text"><strong>Description:</strong> {{ item.description }}</p>
+                <p class="card-text"><strong>Contact:</strong> {{ item.contact_info }}</p>
+                <p class="card-text"><small class="text-muted">Reported by {{ item.user.username }} on {{ item.created_at }}</small></p>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            No lost items found matching your search criteria.
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

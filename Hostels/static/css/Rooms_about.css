@@ -1,0 +1,403 @@
+/* Rooms_about.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* Root variables matching Room_login_signup.css */
+:root {
+    --primary: #4361EE; /* Blue */
+    --secondary: #7209B7; /* Purple */
+    --accent: #F72585; /* Pink */
+    --white: #FFFFFF; /* White */
+    --text-dark: #1A1A1A; /* Dark gray */
+    --text-light: #6B7280; /* Medium gray */
+    --bg-light: #F9FAFB; /* Off-white */
+    --bg-section: #F1F5F9; /* Light slate */
+    --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 8px 24px rgba(67, 97, 238, 0.2);
+    --transition: all 0.3s ease-in-out;
+}
+
+/* General body styling */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg-light);
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* About Header */
+.about-header {
+    padding: 5rem 0;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 0 0 40px 40px;
+    margin-bottom: 4rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-light);
+    text-align: center;
+}
+
+.about-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15), transparent 70%);
+    opacity: 0.5;
+}
+
+.about-header h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+}
+
+.about-header .header-tagline {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--white);
+    opacity: 0.9;
+}
+
+/* Section Styling */
+.content-section, .team-section, .rating-section {
+    padding: 5rem 0;
+}
+
+.content-section {
+    background: var(--bg-light);
+}
+
+.team-section {
+    background: var(--bg-section);
+}
+
+.rating-section {
+    background: var(--white);
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: var(--accent);
+    border-radius: 2px;
+}
+
+/* Grid Layout */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -15px;
+}
+
+[class*="col-"] {
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.col-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+@media (min-width: 768px) {
+    .col-md-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
+@media (min-width: 992px) {
+    .col-lg-3 {
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+    .col-lg-4 {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
+}
+
+/* Card Base Styling */
+.service-box, .team-member, .review-box {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow-light);
+    min-height: 300px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.service-box::before, .team-member::before, .review-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+}
+
+.service-box:hover::before, .team-member:hover::before, .review-box:hover::before {
+    transform: scaleX(1);
+}
+
+/* Services Section */
+.service-box {
+    text-align: center;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.service-box:nth-child(2) { animation-delay: 0.1s; }
+.service-box:nth-child(3) { animation-delay: 0.2s; }
+.service-box:nth-child(4) { animation-delay: 0.3s; }
+
+.service-box:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+    background: linear-gradient(180deg, var(--white), rgba(67, 97, 238, 0.05));
+}
+
+.service-box img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    transition: var(--transition);
+}
+
+.service-box:hover img {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.service-box h4 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+/* Team Section */
+.team-member {
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.team-member:nth-child(2) { animation-delay: 0.1s; }
+.team-member:nth-child(3) { animation-delay: 0.2s; }
+.team-member:nth-child(4) { animation-delay: 0.3s; }
+
+.team-member:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+    background: linear-gradient(180deg, var(--white), rgba(114, 9, 183, 0.05));
+}
+
+.team-member img {
+    width: 130px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 1.5rem;
+    border: 3px solid var(--primary);
+    transition: var(--transition);
+}
+
+.team-member:hover img {
+    border-color: var(--accent);
+    transform: scale(1.05);
+}
+
+.team-member h5 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+/* Rating Section */
+.review-box {
+    justify-content: space-between;
+}
+
+.review-box:nth-child(2) { animation-delay: 0.1s; }
+.review-box:nth-child(3) { animation-delay: 0.2s; }
+
+.review-box:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+}
+
+.review-box p {
+    font-size: 1rem;
+    color: var(--text-light);
+    font-style: italic;
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+    flex-grow: 1;
+    position: relative;
+}
+
+.review-box p::before {
+    content: '“';
+    position: absolute;
+    left: 0;
+    top: -0.2rem;
+    font-size: 2rem;
+    color: var(--secondary);
+    opacity: 0.4;
+}
+
+.review-box h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+/* Feedback Cards */
+.feedback-entry {
+    background: linear-gradient(180deg, var(--white), rgba(114, 9, 183, 0.05));
+}
+
+.feedback-entry:hover {
+    background: linear-gradient(180deg, var(--white), rgba(114, 9, 183, 0.1));
+}
+
+.no-feedback {
+    justify-content: center;
+    align-items: center;
+    border: 2px dashed var(--accent);
+    background: var(--white);
+}
+
+.no-feedback:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+    background: linear-gradient(180deg, var(--white), rgba(247, 37, 133, 0.1));
+}
+
+.no-feedback-text {
+    font-size: 1rem;
+    color: var(--text-dark);
+    font-style: italic;
+    text-align: center;
+    margin: 0;
+}
+
+.feedback-icon {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+    color: var(--accent);
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .col-md-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+    .service-box, .team-member, .review-box {
+        min-height: 280px;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-header {
+        padding: 3rem 1rem;
+    }
+    .about-header h1 {
+        font-size: 2.5rem;
+    }
+    .header-tagline {
+        font-size: 1rem;
+    }
+    .content-section, .team-section, .rating-section {
+        padding: 3rem 0;
+    }
+    .section-title {
+        font-size: 2rem;
+    }
+    .service-box img {
+        height: 140px;
+    }
+    .team-member img {
+        width: 120px;
+        height: 120px;
+    }
+    .service-box, .team-member, .review-box {
+        min-height: 260px;
+    }
+}
+
+@media (max-width: 576px) {
+    .col-md-6, .col-lg-3, .col-lg-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    .about-header h1 {
+        font-size: 2rem;
+    }
+    .section-title {
+        font-size: 1.75rem;
+    }
+    .service-box img {
+        height: 130px;
+    }
+    .service-box h4, .team-member h5, .review-box h5 {
+        font-size: 1.1rem;
+    }
+    .service-box, .team-member, .review-box {
+        min-height: 240px;
+    }
+}
+
+/* Selection */
+::selection {
+    background: var(--accent);
+    color: var(--white);
+}
+
+/* Hide footer from base */
+.footer {
+    display: none;
+}

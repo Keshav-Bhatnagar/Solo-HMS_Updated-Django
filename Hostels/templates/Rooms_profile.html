@@ -1,0 +1,441 @@
+{% extends 'Rooms_base.html' %}
+{% load static %}
+
+{% block title %}Your Profile – CampusNest{% endblock %}
+
+{% block extra_css %}
+<style>
+  .cn-profile-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6rem 2rem 4rem;
+  }
+  .cn-profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  .cn-profile-title h1 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--on-bg);
+    margin-bottom: 0.25rem;
+  }
+  .cn-profile-title p { color: var(--on-surface-muted); font-size: 0.9375rem; }
+  
+  /* Progress Bar */
+  .cn-progress-box {
+    background: var(--surface-raised);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 2.5rem;
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .cn-progress-text { font-weight: 700; color: var(--on-bg); white-space: nowrap; font-size: 0.9375rem; }
+  .cn-progress-bar {
+    flex: 1; height: 10px; background: var(--outline-bright); border-radius: 5px; overflow: hidden;
+  }
+  .cn-progress-fill {
+    height: 100%; background: var(--primary);
+    border-radius: 5px; transition: width 1s ease;
+  }
+
+  /* Layout Grid */
+  .cn-profile-grid { display: grid; grid-template-columns: 320px 1fr; gap: 2.5rem; }
+  @media (max-width: 900px) { .cn-profile-grid { grid-template-columns: 1fr; } }
+
+  /* Sidebar */
+  .cn-profile-sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+  .cn-sidebar-card {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+  }
+  .cn-profile-pic-box { position: relative; width: 140px; height: 140px; margin: 0 auto 1.5rem; }
+  .cn-profile-pic {
+    width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+    border: 1px solid var(--outline); padding: 4px; background: var(--surface);
+    box-shadow: var(--shadow-md);
+  }
+  .cn-pic-edit-btn {
+    position: absolute; bottom: 0; right: 0;
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--primary); color: #fff;
+    border: 3px solid var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all var(--transition);
+  }
+  .cn-pic-edit-btn:hover { background: var(--primary-hover); transform: scale(1.1); }
+  .cn-user-name { font-size: 1.5rem; font-weight: 800; color: var(--on-bg); margin-bottom: 0.25rem; }
+  .cn-user-email { font-size: 0.875rem; color: var(--on-surface-muted); margin-bottom: 2rem; }
+
+  /* Bio Box */
+  .cn-bio-box { text-align: left; padding-top: 1.5rem; border-top: 1px solid var(--glass-border); }
+  .cn-bio-box h3 { font-size: 1rem; color: var(--on-bg); margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; }
+  .cn-bio-text { font-size: 0.875rem; color: var(--on-surface-muted); line-height: 1.6; }
+  .cn-bio-edit-btn { background: none; border: none; color: var(--primary); font-size: 0.8125rem; font-weight: 700; cursor: pointer; }
+  .cn-bio-edit-btn:hover { color: var(--tertiary); }
+  .cn-bio-input { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: #fff; padding: 0.75rem; border-radius: var(--radius-sm); margin-bottom: 0.75rem; font-family: var(--font); font-size: 0.875rem; resize: vertical; }
+
+  /* Stats Box */
+  .cn-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+  .cn-stat-pill { background: var(--surface-high); border: 1px solid var(--glass-border); padding: 1rem; border-radius: var(--radius-md); text-align: center; }
+  .cn-stat-pill i { color: var(--primary); font-size: 1.25rem; margin-bottom: 0.5rem; }
+  .cn-stat-val { font-size: 1.25rem; font-weight: 800; color: var(--on-bg); }
+  .cn-stat-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-muted); }
+
+  /* Main Content Columns */
+  .cn-main-content { display: flex; flex-direction: column; gap: 2.5rem; }
+  .cn-content-card {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+    box-shadow: var(--shadow-sm);
+    position: relative; overflow: hidden;
+  }
+  .cn-content-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--primary); opacity: 0.25; }
+  .cn-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+  .cn-card-title { font-size: 1.25rem; font-weight: 800; color: var(--on-bg); display: flex; align-items: center; gap: 0.75rem; }
+  .cn-card-title i { color: var(--primary); }
+  
+  .cn-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 650px) { .cn-detail-grid { grid-template-columns: 1fr; } }
+  .cn-detail-item { display: flex; flex-direction: column; gap: 0.25rem; }
+  .cn-detail-label { font-size: 0.75rem; font-weight: 700; color: var(--on-surface-faint); text-transform: uppercase; letter-spacing: 0.05em; }
+  .cn-detail-value { font-size: 1rem; font-weight: 600; color: var(--on-bg); }
+  
+  .cn-status-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.875rem; border-radius: var(--radius-full); font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  .cn-status-active { background: rgba(34,211,165,0.15); color: var(--success); border: 1px solid rgba(34,211,165,0.3); }
+  .cn-status-pending { background: rgba(250,189,0,0.15); color: var(--tertiary); border: 1px solid rgba(250,189,0,0.3); }
+
+  .cn-card-actions { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--glass-border); display: flex; gap: 1rem; align-items: center; }
+  .cn-card-actions.right { justify-content: flex-end; }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="cn-profile-page cn-page">
+  <div class="cn-profile-header">
+    <div class="cn-profile-title">
+      <h1>Your Profile</h1>
+      <p>Manage Your CampusNest Experience</p>
+    </div>
+    {% if allocation and allocation.status == 'pending' %}
+    <div style="width:48px; height:48px; border-radius:50%; background:rgba(250,189,0,0.15); color:var(--tertiary); display:flex; align-items:center; justify-content:center; position:relative; border:1px solid rgba(250,189,0,0.3);">
+      <i class="fa-solid fa-bell"></i>
+      <span style="position:absolute; top:-4px; right:-4px; background:var(--error); color:#fff; font-size:0.65rem; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; border:2px solid var(--bg);">1</span>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="cn-progress-box">
+    <div class="cn-progress-text">Profile Strength <span id="progress-percent" style="color:var(--primary);">{{ profile_completion|floatformat:0 }}%</span></div>
+    <div class="cn-progress-bar">
+      <div class="cn-progress-fill" style="--completion-width: {{ profile_completion|floatformat:0 }}%; width: var(--completion-width);"></div>
+    </div>
+  </div>
+
+  <div class="cn-profile-grid">
+    <!-- Sidebar -->
+    <aside class="cn-profile-sidebar">
+      <div class="cn-sidebar-card">
+        <div class="cn-profile-pic-box">
+          <img src="{% if student_profile.profile_picture %}{{ student_profile.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="cn-profile-pic" id="profile-pic-display">
+          
+          <form id="profile-picture-form" method="post" enctype="multipart/form-data" action="{% url 'update_profile_pic' %}">
+            {% csrf_token %}
+            <input type="file" id="profile-picture-upload" name="profile_picture" accept="image/*" style="display: none;" onchange="previewImage(event)">
+            <div class="cn-pic-edit-btn" onclick="document.getElementById('profile-picture-upload').click()">
+              <i class="fa-solid fa-camera"></i>
+            </div>
+          </form>
+          <div id="image-preview" style="display: none; position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; overflow:hidden;">
+            <img id="preview-image" style="width:100%; height:100%; object-fit:cover; opacity:0.8;" src="">
+          </div>
+        </div>
+        
+        <h2 class="cn-user-name">{{ user.get_full_name|default:user.email }}</h2>
+        <p class="cn-user-email">{{ user.email }}</p>
+
+        <div class="cn-bio-box">
+          <h3>About Me <button class="cn-bio-edit-btn" id="edit-bio-btn"><i class="fa-solid fa-pen"></i></button></h3>
+          <p class="cn-bio-text" id="about-me-text">{{ student_profile.bio|default:"Tell us something about yourself..." }}</p>
+          
+          <div id="edit-bio-form" style="display: none;">
+            <textarea id="about-me-input" class="cn-bio-input" rows="3">{{ student_profile.bio|default:"" }}</textarea>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="cn-btn cn-btn-primary" id="save-bio-btn" style="flex:1; padding:0.5rem; font-size:0.8125rem;">Save</button>
+              <button class="cn-btn cn-btn-ghost" id="cancel-bio-btn" style="flex:1; padding:0.5rem; font-size:0.8125rem;">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="cn-stats-grid">
+          <div class="cn-stat-pill">
+            <i class="fa-solid fa-screwdriver-wrench"></i>
+            <div class="cn-stat-val">{{ stats.complaints|default:0 }}</div>
+            <div class="cn-stat-label">Tickets</div>
+          </div>
+          <div class="cn-stat-pill">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+            <div class="cn-stat-val">{{ stats.payments|default:0 }}</div>
+            <div class="cn-stat-label">Payments</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="cn-main-content">
+      <!-- Hostel Details -->
+      <div class="cn-content-card">
+        <div class="cn-card-header">
+          <h2 class="cn-card-title"><i class="fa-solid fa-bed"></i> Residency Details</h2>
+          {% if allocation %}
+            {% elif allocation.status == 'approved' %}
+              <div class="cn-status-badge cn-status-info"><i class="fa-solid fa-thumbs-up"></i> Approved & Ready for Payment</div>
+            {% elif allocation.status == 'rejected' %}
+              <div class="cn-status-badge cn-status-error"><i class="fa-solid fa-xmark"></i> Rejected</div>
+            {% else %}
+              <div class="cn-status-badge cn-status-pending"><i class="fa-solid fa-hourglass-half"></i> Pending Approval</div>
+            {% endif %}
+          {% endif %}
+        </div>
+
+        {% if allocation %}
+        <div class="cn-detail-grid">
+          <div class="cn-detail-item">
+            <span class="cn-detail-label">Room Number</span>
+            <span class="cn-detail-value">{{ allocation.room.room_number }}</span>
+          </div>
+          <div class="cn-detail-item">
+            <span class="cn-detail-label">Hostel Name</span>
+            <span class="cn-detail-value">{{ allocation.room.hostel.name }}</span>
+          </div>
+          <div class="cn-detail-item">
+            <span class="cn-detail-label">Floor</span>
+            <span class="cn-detail-value">Floor {{ allocation.room.floor }}</span>
+          </div>
+          <div class="cn-detail-item">
+            <span class="cn-detail-label">Room Type</span>
+            <span class="cn-detail-value">{{ allocation.room.get_ac_type_display }}</span>
+          </div>
+          <div class="cn-detail-item" style="grid-column: 1 / -1;">
+            <span class="cn-detail-label">Allocation Date</span>
+            <span class="cn-detail-value">{{ allocation.allocation_date|date:"F d, Y" }}</span>
+          </div>
+        </div>
+        
+        <div class="cn-card-actions">
+          {% if allocation.status == 'confirmed' %}
+            <a href="{% url 'room_change_request' %}" class="cn-btn cn-btn-ghost"><i class="fa-solid fa-shuffle"></i> Request Transfer</a>
+            {% if allocation.fee_payments.exists %}
+              <div style="margin-left:auto; display:flex; align-items:center; gap:0.5rem; color:var(--success); font-weight:700;">
+                <i class="fa-solid fa-circle-check"></i> Paid: ₹{{ allocation.fee_payments.first.amount }}
+              </div>
+            {% endif %}
+          {% elif allocation.status == 'approved' %}
+            <a href="{% url 'payment' %}" class="cn-btn cn-btn-gold" style="width:100%;"><i class="fa-solid fa-credit-card"></i> Complete Payment Now</a>
+          {% elif allocation.status == 'pending' %}
+            <div style="width:100%; padding:1rem; background:var(--surface-raised); border-radius:var(--radius-md); text-align:center; color:var(--warning); font-weight:600; border:1px dashed var(--warning);">
+                <i class="fa-solid fa-clock"></i> Awaiting Institutional Approval from Admin
+            </div>
+          {% elif allocation.status == 'rejected' %}
+            <div style="width:100%; padding:1rem; background:var(--error-container); border-radius:var(--radius-md); text-align:center; color:var(--error); font-weight:600;">
+                <i class="fa-solid fa-circle-xmark"></i> Request Rejected by Administration
+            </div>
+          {% endif %}
+        </div>
+        
+        {% else %}
+        <div style="text-align:center; padding:2rem 0;">
+          <i class="fa-solid fa-house-user" style="font-size:3rem; color:var(--outline-variant); margin-bottom:1rem;"></i>
+          <p style="color:var(--on-surface-muted); margin-bottom:1.5rem;">You don't have an active room allocation.</p>
+          <a href="{% url 'room_allocation' %}" class="cn-btn cn-btn-primary"><i class="fa-solid fa-plus"></i> Book a Room</a>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Personal Info -->
+      <div class="cn-content-card" style="box-shadow:none;">
+        <div class="cn-card-header">
+          <h2 class="cn-card-title"><i class="fa-solid fa-id-card"></i> Personal Information</h2>
+        </div>
+        
+        <div class="cn-detail-grid">
+          <div class="cn-detail-item">
+            <span class="cn-detail-label">Full Name</span>
+            <span class="cn-detail-value">{{ user.get_full_name|default:"Not set" }}</span>
+          </div>
+          <div class="cn-detail-item">
+            <span class="cn-detail-label">Roll Number</span>
+            <span class="cn-detail-value">{{ user.roll_number|default:"Not set" }}</span>
+          </div>
+          <div class="cn-detail-item">
+            <span class="cn-detail-label">Contact Number</span>
+            <span class="cn-detail-value">{{ student_profile.contact_number|default:"Not set" }}</span>
+          </div>
+          <div class="cn-detail-item">
+            <span class="cn-detail-label">Email Address</span>
+            <span class="cn-detail-value">{{ user.email }}</span>
+          </div>
+          <div class="cn-detail-item">
+            <span class="cn-detail-label">Member Since</span>
+            <span class="cn-detail-value">{{ user.date_joined|date:"F d, Y" }}</span>
+          </div>
+        </div>
+
+        <div class="cn-card-actions right">
+          <button class="cn-btn cn-btn-ghost" id="edit-details-btn"><i class="fa-solid fa-pen-to-square"></i> Edit Info</button>
+          <a href="{% url 'logout' %}" class="cn-btn cn-btn-primary" style="background:var(--error-container); color:var(--on-bg); box-shadow:none;" onclick="return confirm('Ready to leave?');"><i class="fa-solid fa-power-off"></i> Logout</a>
+        </div>
+      </div>
+
+      <!-- Hidden Edit Section -->
+      <div class="cn-content-card edit-section" id="edit-section" style="display: none; box-shadow:none; border-color:var(--primary);">
+        <h2 class="cn-card-title" style="margin-bottom:2rem;"><i class="fa-solid fa-user-pen"></i> Update Information</h2>
+        <form method="post" action="{% url 'edit_profile' %}" enctype="multipart/form-data" id="profile-edit-form">
+          {% csrf_token %}
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+          {% for field in form %}
+            <div style="display:flex; flex-direction:column; gap:0.5rem;">
+              <label for="{{ field.id_for_label }}" class="cn-detail-label">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+              <span class="error" style="color:var(--error); font-size:0.75rem;">{{ field.errors }}</span>
+              {% endif %}
+            </div>
+          {% endfor %}
+          </div>
+          <div class="cn-card-actions right">
+            <button type="button" class="cn-btn cn-btn-ghost" id="cancel-edit-btn">Cancel</button>
+            <button type="submit" class="cn-btn cn-btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+          </div>
+        </form>
+      </div>
+
+    </main>
+  </div>
+</main>
+
+<style>
+/* Reset form fields style in this context if `form` is rendered raw */
+#profile-edit-form input, #profile-edit-form select, #profile-edit-form textarea {
+    width: 100%; padding: 0.875rem 1rem; background: var(--bg-deep); border: 1px solid var(--outline-variant); border-radius: var(--radius-md); color: var(--on-bg); font-family: var(--font); outline: none; transition: all var(--transition);
+}
+#profile-edit-form input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(124,77,255,0.2); }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // === Bio Edit ===
+    const editBioBtn = document.getElementById('edit-bio-btn');
+    const saveBioBtn = document.getElementById('save-bio-btn');
+    const cancelBioBtn = document.getElementById('cancel-bio-btn');
+    const editBioForm = document.getElementById('edit-bio-form');
+    const aboutMeText = document.getElementById('about-me-text');
+    const aboutMeInput = document.getElementById('about-me-input');
+
+    if (editBioBtn) {
+        editBioBtn.addEventListener('click', () => {
+            aboutMeText.style.display = 'none';
+            editBioBtn.style.display = 'none';
+            editBioForm.style.display = 'block';
+            aboutMeInput.focus();
+        });
+    }
+    if (cancelBioBtn) {
+        cancelBioBtn.addEventListener('click', () => {
+            aboutMeText.style.display = 'block';
+            editBioBtn.style.display = 'inline-flex';
+            editBioForm.style.display = 'none';
+            aboutMeInput.value = aboutMeText.textContent;
+        });
+    }
+    if (saveBioBtn) {
+        saveBioBtn.addEventListener('click', () => {
+            const newBio = aboutMeInput.value.trim();
+            fetch("{% url 'edit_profile' %}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token }}', 'X-Requested-With': 'XMLHttpRequest' },
+                body: `bio=${encodeURIComponent(newBio)}&csrfmiddlewaretoken={{ csrf_token }}`
+            }).then(r => r.json()).then(data => {
+                if (data.success) {
+                    aboutMeText.textContent = newBio || "Tell us something about yourself...";
+                    aboutMeText.style.display = 'block';
+                    editBioBtn.style.display = 'inline-flex';
+                    editBioForm.style.display = 'none';
+                } else { alert('Failed to update bio.'); }
+            }).catch(e => console.error(e));
+        });
+    }
+
+    // === Edit Details ===
+    const editDetailsBtn = document.getElementById('edit-details-btn');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    const editSection = document.getElementById('edit-section');
+    const profileEditForm = document.getElementById('profile-edit-form');
+    
+    if (editDetailsBtn) {
+        editDetailsBtn.addEventListener('click', function() {
+            editSection.style.display = 'block';
+            this.style.display = 'none';
+            editSection.scrollIntoView({behavior: 'smooth', block: 'end'});
+        });
+    }
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', function() {
+            editSection.style.display = 'none';
+            editDetailsBtn.style.display = 'inline-flex';
+        });
+    }
+    if (profileEditForm) {
+        profileEditForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetch("{% url 'edit_profile' %}", {
+                method: 'POST', body: new FormData(this), headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': '{{ csrf_token }}' }
+            }).then(r => r.json()).then(data => {
+                if (data.success) { location.reload(); }
+                else { alert('Failed to update profile form.'); }
+            }).catch(e => console.error(e));
+        });
+    }
+});
+
+// === Profile Picture ===
+function previewImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('preview-image').src = e.target.result;
+            document.getElementById('image-preview').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+
+        const formData = new FormData();
+        formData.append('profile_picture', file);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        fetch("{% url 'update_profile_pic' %}", { method: 'POST', body: formData })
+        .then(r => r.json()).then(data => {
+            if (data.success && data.new_url) {
+                document.getElementById('profile-pic-display').src = data.new_url;
+                document.getElementById('image-preview').style.display = 'none';
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../static/images/Favicon.png" type="image/x-icon">
+
+    <title>Document</title>
+</head>
+
+<body>
+    {% extends 'base.html' %}
+
+    {% block content %}
+    <div class="container mt-5">
+        <h2 class="mb-4">✏️ Update Event</h2>
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="eventName" class="form-label">Event Name</label>
+                <input type="text" class="form-control" id="eventName" name="name" value="{{ data.name }}"
+                    placeholder="Enter event name" required>
+            </div>
+
+
+            <div class="mb-3">
+                <label for="organizer" class="form-label">Organizer</label>
+                <input type="text" class="form-control" id="organizer" name="organizer" value="{{ event.organizer }}"
+                    placeholder="Enter organizer's name">
+            </div>
+            <div class="mb-3">
+                <label for="eventDate" class="form-label">Date</label>
+                <input type="date" class="form-control" id="eventDate" name="date" value="{{ data.date }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="eventTime" class="form-label">Time</label>
+                <input type="time" class="form-control" id="eventTime" name="time" value="{{ data.time }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="venue" class="form-label">Venue</label>
+                <input type="text" class="form-control" id="venue" name="venue" value="{{ data.venue }}"
+                    placeholder="Enter venue" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description"
+                    rows="4">{{ data.description }}</textarea>
+            </div>
+
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <button type="submit" class="btn btn-success btn-lg me-2">✅ Update</button>
+                <a href="{% url 'admin_form' %}" class="btn btn-secondary btn-lg">↩️ Cancel</a>
+            </div>
+        </form>
+    </div>
+    {% endblock %}
+
+</body>
+
+</html>

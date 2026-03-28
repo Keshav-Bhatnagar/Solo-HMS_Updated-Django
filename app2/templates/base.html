@@ -1,0 +1,232 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Fonts (Early Loading) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CampusConnect – The Social Hub for CampusNest.">
+  <title>{% block title %}CampusConnect – Stay Connected{% endblock %}</title>
+
+  <!-- Icons & CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="shortcut icon" href="{% static 'images/Favicon.png' %}" type="image/x-icon">
+  <link rel="stylesheet" href="{% static 'css/campusnest_premium.css' %}">
+
+  <!-- Theme Initialization & Performance Fix (Prevents Lagging FOUC) -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('cn-theme') || 'dark';
+      const doc = document.documentElement;
+      doc.setAttribute('data-theme', savedTheme);
+      doc.classList.add('no-transitions');
+      window.addEventListener('load', () => {
+        setTimeout(() => doc.classList.remove('no-transitions'), 100);
+      });
+    })();
+  </script>
+
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="cn-navbar" id="cn-navbar">
+    <div class="cn-navbar-container">
+      <a href="{% url 'app2index' %}" class="cn-logo">
+        <div class="cn-logo-icon cc-brand"></div>
+        <span class="cn-logo-text">CampusConnect</span>
+      </a>
+
+      <div class="cn-nav-links" id="cn-nav-links">
+        <a href="{% url 'app2index' %}" class="active">Home</a>
+        <a href="{% url 'events' %}">Events</a>
+        <a href="{% url 'mess' %}">Institutional Mess</a>
+        <a href="{% url 'lost_and_found_dashboard' %}">Registry</a>
+        <a href="{% url 'index' %}">Exit to Nest <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      </div>
+
+      <div class="cn-nav-actions">
+        <button class="cn-btn-icon cn-theme-toggle" id="cn-theme-toggle" aria-label="Toggle Theme">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+
+        {% if user.is_authenticated %}
+          <div class="cn-dropdown">
+            <button class="cn-nav-profile-btn" aria-haspopup="true">
+              <div class="cn-profile-wrapper">
+                {% if user.student_profile.profile_picture %}
+                  <img src="{{ user.student_profile.profile_picture.url }}" alt="Profile" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                {% else %}
+                  <i class="fa-solid fa-user-circle"></i>
+                {% endif %}
+              </div>
+              <span class="cn-profile-name" style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ user.first_name|default:user.email }}</span>
+              <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; opacity: 0.6;"></i>
+            </button>
+            <div class="cn-dropdown-menu right">
+              <div class="cn-dropdown-header">Institutional Access</div>
+              <a href="{% url 'profiles' %}"><i class="fa-solid fa-user-gear"></i> Student Profile</a>
+              {% if user.is_staff %}
+                <a href="{% url 'admin_dashboard' %}"><i class="fa-solid fa-gauge-high"></i> Admin Dashboard</a>
+              {% endif %}
+              <a href="{% url 'index' %}"><i class="fa-solid fa-building-columns"></i> CampusNest Portal</a>
+              <div class="cn-dropdown-divider"></div>
+              <a href="{% url 'logout' %}" style="color:var(--error);"><i class="fa-solid fa-power-off"></i> Sign Out</a>
+            </div>
+          </div>
+        {% else %}
+          <a href="{% url 'login' %}" class="cn-btn cn-btn-primary">Initialize Access</a>
+        {% endif %}
+
+        <button class="cn-hamburger" id="cn-hamburger" aria-label="Toggle Mobile Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== PAGE CONTENT ===== -->
+  <main class="cn-main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ===== ELITE FOOTER ===== -->
+  <footer class="cn-footer">
+    <div class="cn-footer-container">
+      <div class="cn-footer-top">
+        <div class="cn-footer-info">
+          <div class="cn-logo">
+            <div class="cn-logo-icon cc-brand"></div>
+            <span class="cn-logo-text">CampusConnect</span>
+          </div>
+          <p class="cn-footer-tagline">The Digital Nervous System of CampusNest.</p>
+        </div>
+        
+        <div class="cn-footer-links-grid">
+          <div class="cn-footer-col">
+            <h5>Ecosystem</h5>
+            <a href="{% url 'index' %}">CampusNest Portal</a>
+            <a href="{% url 'app2index' %}">Social Hub</a>
+            <a href="{% url 'events' %}">Event Matrix</a>
+          </div>
+          <div class="cn-footer-col">
+            <h5>Resources</h5>
+            <a href="{% url 'mess' %}">Mess Protocol</a>
+            <a href="{% url 'lost_and_found_dashboard' %}">Registry</a>
+            <a href="#">Support Uplink</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="cn-footer-bottom">
+        <div class="cn-footer-legal">
+          <span>&copy; 2026 CampusNest Institutional. All Rights Reserved.</span>
+        </div>
+        <div class="cn-footer-social">
+          <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /**
+     * DropdownManager — Professional Click-to-Toggle System
+     */
+    class DropdownManager {
+      constructor() {
+        this.dropdowns = document.querySelectorAll('.cn-dropdown');
+        this.init();
+      }
+
+      init() {
+        this.dropdowns.forEach(dropdown => {
+          const toggle = dropdown.querySelector('a');
+          const menu = dropdown.querySelector('.cn-dropdown-menu');
+          
+          if (!toggle || !menu) return;
+
+          toggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            const isOpen = menu.classList.contains('active');
+            this.closeAll();
+            if (!isOpen) {
+              menu.classList.add('active');
+              dropdown.classList.add('active');
+            }
+          });
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!e.target.closest('.cn-dropdown')) {
+            this.closeAll();
+          }
+        });
+      }
+
+      closeAll() {
+        document.querySelectorAll('.cn-dropdown-menu').forEach(m => m.classList.remove('active'));
+        document.querySelectorAll('.cn-dropdown').forEach(d => d.classList.remove('active'));
+      }
+    }
+
+    // Navbar scroll effect
+    const navbar = document.getElementById('cn-navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 10);
+    });
+
+    // Mobile hamburger toggle
+    const hamburger = document.getElementById('cn-hamburger');
+    const navLinks = document.getElementById('cn-nav-links');
+    if (hamburger) {
+      hamburger.addEventListener('click', () => {
+        const isOpen = navLinks.classList.toggle('open');
+        hamburger.setAttribute('aria-expanded', isOpen);
+      });
+    }
+
+    // Auto-dismiss alerts
+    setTimeout(() => {
+      document.querySelectorAll('.cn-alert').forEach(a => {
+        a.style.transition = 'opacity 0.4s';
+        a.style.opacity = '0';
+        setTimeout(() => a.remove(), 400);
+      });
+    }, 5000);
+
+    // Initializer
+    document.addEventListener('DOMContentLoaded', () => {
+      new DropdownManager();
+    });
+
+    // Theme Toggle Logic
+    const themeBtn = document.getElementById('cn-theme-toggle');
+    const updateThemeIcon = (theme) => {
+      const icon = themeBtn.querySelector('i');
+      if (theme === 'light') {
+        icon.className = 'fa-solid fa-sun';
+      } else {
+        icon.className = 'fa-solid fa-moon';
+      }
+    };
+    
+    updateThemeIcon(document.documentElement.getAttribute('data-theme') || 'dark');
+
+    themeBtn.addEventListener('click', () => {
+      let activeTheme = document.documentElement.getAttribute('data-theme');
+      let newTheme = activeTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('cn-theme', newTheme);
+      updateThemeIcon(newTheme);
+    });
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,716 @@
+{% extends 'Rooms_base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard – CampusNest{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Admin Layout */
+  .cn-admin-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+    max-width: 1600px;
+    margin: 2rem auto 6rem;
+    padding: 0 1.5rem;
+  }
+  @media (max-width: 1024px) {
+    .cn-admin-layout { grid-template-columns: 1fr; }
+  }
+
+  /* Sidebar */
+  .cn-admin-sidebar {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem 1rem;
+    position: sticky;
+    top: 100px;
+    height: calc(100vh - 120px);
+    overflow-y: auto;
+    box-shadow: var(--shadow-sm);
+  }
+  .cn-admin-sidebar::-webkit-scrollbar { width: 4px; }
+  
+  .cn-admin-brand { display: flex; align-items: center; gap: 1rem; margin-bottom: 3rem; padding: 0 1rem; }
+  .cn-admin-brand i { font-size: 2rem; color: var(--primary); }
+  .cn-admin-brand h2 { font-size: 1.25rem; font-weight: 900; color: var(--on-bg); }
+
+  .cn-nav-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .cn-nav-item {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    color: var(--on-surface-muted);
+    font-weight: 700;
+    transition: all var(--transition);
+  }
+  .cn-nav-item i { width: 20px; text-align: center; }
+  .cn-nav-item:hover { background: var(--bg-subtle); color: var(--primary); }
+  .cn-nav-item.active {
+    background: var(--primary-container);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+  }
+
+  /* Main Content Area */
+  .cn-admin-main { display: flex; flex-direction: column; gap: 2rem; }
+  
+  .cn-admin-header {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 2.5rem;
+    display: flex; justify-content: space-between; align-items: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .cn-admin-header h1 { font-size: 1.75rem; font-weight: 800; color: var(--on-bg); margin-bottom: 0.25rem; }
+  .cn-admin-breadcrumb { font-size: 0.75rem; color: var(--on-surface-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  
+  .cn-admin-profile { display: flex; align-items: center; gap: 1rem; }
+  .cn-admin-profile i { font-size: 2.5rem; color: var(--tertiary); }
+  .cn-admin-pro-details { display: flex; flex-direction: column; }
+  .cn-admin-pro-name { font-weight: 800; color: var(--on-bg); }
+  .cn-admin-pro-role { font-size: 0.75rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* Dashboard Stats Grid */
+  .cn-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+  .cn-stat-card {
+    background: var(--surface); border: 1px solid var(--outline); border-radius: var(--radius-lg);
+    padding: 2rem; position: relative; overflow: hidden; box-shadow: var(--shadow-sm);
+  }
+  .cn-stat-card::before {
+    content: ''; position: absolute; left:0; top:0; width: 4px; height: 100%;
+    background: var(--primary);
+  }
+  .cn-stat-card.c-success::before { background: var(--success); }
+  .cn-stat-card.c-warning::before { background: var(--warning); }
+  .cn-stat-card.c-info::before { background: var(--secondary); }
+
+  .cn-stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+  .cn-stat-top i { font-size: 2rem; opacity: 0.5; color: var(--on-bg); }
+  .cn-stat-label { font-size: 0.8125rem; font-weight: 700; color: var(--on-surface-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .cn-stat-value { font-size: 2rem; font-weight: 900; color: var(--on-bg); }
+
+  /* Tables & Lists */
+  .cn-admin-panel {
+    background: var(--surface); border: 1px solid var(--glass-border); border-radius: var(--radius-xl);
+    padding: 2rem; position: relative; overflow: hidden; box-shadow: var(--shadow-card);
+  }
+  .cn-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+  .cn-panel-title { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.75rem; color: var(--on-bg); }
+  
+  .cn-table-wrapper { overflow-x: auto; }
+  .cn-table { width: 100%; border-collapse: collapse; text-align: left; }
+  .cn-table th {
+    padding: 1rem; background: var(--bg-deep); color: var(--on-surface-muted);
+    font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--glass-border);
+  }
+  .cn-table td {
+    padding: 1.25rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: var(--on-bg); font-size: 0.9375rem; vertical-align: middle;
+  }
+  .cn-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* Generic Badges */
+  .cn-badge {
+    padding: 0.375rem 0.75rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 800;
+    display: inline-flex; align-items: center; gap: 0.375rem; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .cn-badge-success { background: rgba(34,211,165,0.15); color: var(--success); border: 1px solid rgba(34,211,165,0.3); }
+  .cn-badge-warning { background: rgba(250,189,0,0.15); color: var(--tertiary); border: 1px solid rgba(250,189,0,0.3); }
+  .cn-badge-danger { background: rgba(255,180,171,0.15); color: var(--error); border: 1px solid rgba(255,180,171,0.3); }
+  .cn-badge-info { background: rgba(124,77,255,0.15); color: var(--primary); border: 1px solid rgba(124,77,255,0.3); }
+  
+  .cn-badge-dark { background: var(--bg-deep); color: var(--on-surface-muted); border: 1px solid var(--outline-variant); }
+
+  /* Actions Container */
+  .cn-action-group { display: flex; gap: 0.5rem; align-items: center; }
+  .cn-icon-btn {
+    width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
+    border-radius: var(--radius-md); background: var(--bg-deep); color: var(--on-surface-muted);
+    border: 1px solid var(--outline-variant); transition: all var(--transition); cursor: pointer; text-decoration: none;
+  }
+  .cn-icon-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+  .cn-icon-btn.danger:hover { background: var(--error); border-color: var(--error); color: var(--on-bg); }
+  .cn-icon-btn.success:hover { background: var(--success); border-color: var(--success); color: #000; }
+
+  /* Inputs for filters */
+  .cn-admin-filters { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+  .cn-admin-search { position: relative; }
+  .cn-admin-search i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--on-surface-faint); }
+  .cn-admin-search input {
+    padding: 0.75rem 1rem 0.75rem 2.5rem; background: var(--bg-deep); border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-full); color: var(--on-bg); font-family: var(--font); width: 250px; transition: all var(--transition);
+  }
+  .cn-admin-search input:focus { border-color: var(--primary); outline: none; width: 300px; }
+  .cn-admin-select {
+    padding: 0.75rem 1.5rem; background: var(--bg-deep); border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-full); color: var(--on-bg); font-family: var(--font); cursor: pointer;
+  }
+  .cn-admin-select:focus { border-color: var(--primary); outline: none; }
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="cn-admin-layout">
+  
+  <!-- SIDEBAR -->
+  <aside class="cn-admin-sidebar">
+    <div class="cn-admin-brand">
+      <i class="fa-solid fa-cube"></i>
+      <h2>CampusNest</h2>
+    </div>
+    <nav class="cn-nav-list">
+      <a href="?tab=overview" class="cn-nav-item {% if active_tab == 'overview' %}active{% endif %}">
+        <i class="fas fa-tachometer-alt"></i> Overview
+      </a>
+      <a href="?tab=users" class="cn-nav-item {% if active_tab == 'users' %}active{% endif %}">
+        <i class="fas fa-users"></i> Users
+      </a>
+      <a href="?tab=requests" class="cn-nav-item {% if active_tab == 'requests' %}active{% endif %}">
+        <i class="fas fa-tools"></i> Requests
+      </a>
+      <a href="?tab=allocations" class="cn-nav-item {% if active_tab == 'allocations' %}active{% endif %}">
+        <i class="fas fa-home"></i> Allocations
+      </a>
+      <a href="?tab=change_room" class="cn-nav-item {% if active_tab == 'change_room' %}active{% endif %}">
+        <i class="fas fa-exchange-alt"></i> Change Room
+      </a>
+      <a href="?tab=events" class="cn-nav-item {% if active_tab == 'events' or active_tab == 'add_event' %}active{% endif %}">
+        <i class="fas fa-calendar-alt"></i> Events
+      </a>
+      <a href="?tab=mess" class="cn-nav-item {% if active_tab == 'mess' %}active{% endif %}">
+        <i class="fas fa-utensils"></i> Mess Menu
+      </a>
+      <a href="?tab=manage_claims" class="cn-nav-item {% if active_tab == 'manage_claims' %}active{% endif %}">
+        <i class="fas fa-box-open"></i> Lost & Found
+      </a>
+      <a href="?tab=notifications" class="cn-nav-item {% if active_tab == 'notifications' %}active{% endif %}">
+        <i class="fas fa-bell"></i> Notifications
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="cn-admin-main">
+    
+    <!-- HEADER -->
+    <header class="cn-admin-header">
+      <div>
+        <h1>Welcome back, {{ request.user.first_name }}!</h1>
+        <div class="cn-admin-breadcrumb">Admin Dashboard <i class="fa-solid fa-chevron-right" style="font-size:0.6rem; margin:0 0.5rem; opacity:0.5;"></i> {{ active_tab|title }}</div>
+      </div>
+      <div class="cn-admin-profile">
+        <div class="cn-admin-pro-details" style="text-align:right;">
+          <span class="cn-admin-pro-name">{{ request.user.get_full_name }}</span>
+          <span class="cn-admin-pro-role">System Admin</span>
+        </div>
+        <i class="fa-solid fa-circle-user"></i>
+      </div>
+    </header>
+
+    <!-- CONTENT SECTIONS -->
+    
+    {% if active_tab == 'overview' %}
+    <!-- OVERVIEW STATS -->
+    <div class="cn-stats-grid">
+      <div class="cn-stat-card">
+        <div class="cn-stat-top">
+          <span class="cn-stat-label">Total Users</span>
+          <i class="fa-solid fa-users"></i>
+        </div>
+        <div class="cn-stat-value">{{ stats.total_users|default:"0" }}</div>
+      </div>
+      
+      <div class="cn-stat-card c-success">
+        <div class="cn-stat-top">
+          <span class="cn-stat-label">Available Rooms</span>
+          <i class="fa-solid fa-bed"></i>
+        </div>
+        <div class="cn-stat-value">{{ stats.available_rooms|default:"0" }}</div>
+      </div>
+      
+      <div class="cn-stat-card c-warning">
+        <div class="cn-stat-top">
+          <span class="cn-stat-label">Pending Req</span>
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div class="cn-stat-value">{{ stats.pending_requests|default:"0" }}</div>
+      </div>
+      
+      <div class="cn-stat-card c-info">
+        <div class="cn-stat-top">
+          <span class="cn-stat-label">Total Revenue</span>
+          <i class="fa-solid fa-indian-rupee-sign"></i>
+        </div>
+        <div class="cn-stat-value">₹{{ stats.total_revenue|floatformat:0|default:"0" }}</div>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 2fr 1fr; gap:2rem;">
+      <div class="cn-admin-panel">
+        <h3 class="cn-panel-title"><i class="fa-solid fa-chart-pie"></i> Room Allocations</h3>
+        <canvas id="allocationChart" style="max-height: 300px; margin-top:2rem;"></canvas>
+      </div>
+
+      <div class="cn-admin-panel">
+        <h3 class="cn-panel-title"><i class="fa-solid fa-bolt"></i> Quick Actions</h3>
+        <div style="display:flex; flex-direction:column; gap:1rem; margin-top:1.5rem;">
+          <a href="{% url 'room_allocation' %}" class="cn-btn cn-btn-primary" style="justify-content:center;">
+            <i class="fas fa-home"></i> Manual Allocate
+          </a>
+          <a href="{% url 'staff_signup' %}" class="cn-btn cn-btn-ghost" style="justify-content:center; border:1px solid var(--outline-variant);">
+            <i class="fas fa-user-plus"></i> Add Staff Member
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECENT ACTIVITY (Assuming models passed to context) -->
+    <div class="cn-admin-panel">
+      <h3 class="cn-panel-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Complaints</h3>
+      <div class="cn-table-wrapper" style="margin-top:1.5rem;">
+        <table class="cn-table">
+          <thead><tr><th>Type</th><th>Details</th><th>Time</th></tr></thead>
+          <tbody>
+            {% for complaint in recent_complaints %}
+            <tr>
+              <td><span class="cn-badge cn-badge-info">{{ complaint.request_type|capfirst }}</span></td>
+              <td>{{ complaint.details|truncatewords:8 }}</td>
+              <td style="color:var(--on-surface-muted); font-size:0.8125rem;">{{ complaint.created_at|timesince }} ago</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" style="text-align:center; padding:3rem; color:var(--on-surface-muted);">No recent activity.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Setup Chart.js with modern Elevation Prime theme
+      const ctx = document.getElementById('allocationChart').getContext('2d');
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      
+      new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+              labels: ['Pending', 'Approved', 'Confirmed', 'Rejected'],
+              datasets: [{
+                  label: 'Allocation Status',
+                  data: [
+                      Number("{{ stats.pending_allocations|default:0 }}"),
+                      Number("{{ stats.approved_allocations|default:0 }}"),
+                      Number("{{ stats.confirmed_allocations|default:0 }}"),
+                      Number("{{ stats.rejected_allocations|default:0 }}")
+                  ],
+                  backgroundColor: [
+                      '#f59e0b', // Pending (Warning)
+                      '#7c4dff', // Approved (Accent)
+                      '#2563eb', // Confirmed (Primary)
+                      '#64748b'  // Rejected (Muted)
+                  ],
+                  borderWidth: 0,
+                  hoverOffset: 6
+              }]
+          },
+          options: {
+              responsive: true,
+              plugins: { 
+                  legend: { 
+                      position: 'bottom', 
+                      labels: { 
+                          color: isDark ? '#f8fafc' : '#0f172a', 
+                          font: { family: 'Inter', size: 12, weight: '600' },
+                          padding: 20,
+                          usePointStyle: true
+                      } 
+                  } 
+              },
+              cutout: '80%'
+          }
+      });
+    });
+    </script>
+
+
+    {% elif active_tab == 'users' %}
+    <!-- USERS TAB -->
+    <div class="cn-admin-panel">
+      <div class="cn-panel-header">
+        <h2 class="cn-panel-title"><i class="fa-solid fa-users"></i> User Directory</h2>
+        <div class="cn-admin-filters">
+          <form method="GET" action="{% url 'view_users' %}" class="cn-admin-search">
+             <i class="fa-solid fa-magnifying-glass"></i>
+             <input type="text" name="search" class="cn-input" style="padding-left: 2.5rem; border-radius: 99px; width: 300px;" placeholder="Search users by email..." value="{{ search_query }}">
+          </form>
+          <a href="{% url 'staff_signup' %}" class="cn-btn cn-btn-primary">
+            <i class="fa-solid fa-plus"></i> Add Staff
+          </a>
+        </div>
+      </div>
+      
+      <div class="cn-table-wrapper">
+        <table class="cn-table">
+          <thead>
+            <tr>
+              <th>Profile</th>
+              <th>Contact</th>
+              <th>Roll #</th>
+              <th>Room</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            {% if not u.is_staff %}
+            <tr>
+              <td>
+                <div style="font-weight:800; color:var(--on-bg);">{{ u.get_full_name }}</div>
+                <div style="font-size:0.75rem; color:var(--on-surface-muted);"><i class="fa-solid fa-envelope" style="margin-right:4px;"></i>{{ u.email }}</div>
+              </td>
+              <td style="font-family:monospace; color:var(--tertiary);">{{ u.student_profile.contact_number|default:"-" }}</td>
+              <td><span class="cn-badge cn-badge-dark">{{ u.student_profile.roll_number|default:"-" }}</span></td>
+              <td><i class="fa-solid fa-door-closed" style="color:var(--on-surface-faint); margin-right:6px;"></i>{{ u.student_profile.room.room_number|default:"-" }}</td>
+              <td><span class="cn-badge cn-badge-info">Student</span></td>
+              <td>
+                {% if u.is_active %}
+                  <span class="cn-badge cn-badge-success">Active</span>
+                {% else %}
+                  <span class="cn-badge cn-badge-danger">Inactive</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="cn-action-group">
+                  <a href="{% url 'edit_user' u.id %}" class="cn-icon-btn"><i class="fa-solid fa-pen"></i></a>
+                  <a href="{% url 'delete_user' u.id %}" class="cn-icon-btn danger" onclick="return confirm('Delete user {{ u.email }}?')"><i class="fa-solid fa-trash"></i></a>
+                </div>
+              </td>
+            </tr>
+            {% endif %}
+            {% empty %}
+            <tr><td colspan="7" style="text-align:center; padding:4rem; color:var(--on-surface-muted);">No users found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    {% elif active_tab == 'requests' %}
+    <!-- REQUESTS TAB -->
+    <div class="cn-admin-panel">
+      <div class="cn-panel-header">
+        <h2 class="cn-panel-title"><i class="fa-solid fa-tools"></i> Ticket Management</h2>
+        <div class="cn-admin-filters">
+          <!-- The previous template had select onchange -->
+          <select class="cn-admin-select" onchange="location = this.value;">
+            <option value="{% url 'view_requests' %}" {% if not status_filter %}selected{% endif %}>All Status</option>
+            <option value="{% url 'view_requests' %}?status=pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="{% url 'view_requests' %}?status=resolved" {% if status_filter == 'resolved' %}selected{% endif %}>Resolved</option>
+          </select>
+          <form method="GET" action="{% url 'view_requests' %}" class="cn-admin-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" name="search" placeholder="Search tickets..." value="{{ search_query }}">
+          </form>
+        </div>
+      </div>
+
+      <div class="cn-table-wrapper">
+        <table class="cn-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Type / Category</th>
+              <th>Room</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for req in requests %}
+            <tr>
+              <td><i class="fa-solid fa-user-circle" style="color:var(--primary); margin-right:8px;"></i>{{ req.user.email }}</td>
+              <td>
+                <div style="font-weight:700;">{{ req.request_type|capfirst }}</div>
+                <div style="font-size:0.75rem; color:var(--on-surface-muted);"><i class="fa-solid fa-tag" style="margin-right:4px;"></i>{{ req.category }}</div>
+              </td>
+              <td><span class="cn-badge cn-badge-dark">{{ req.room_number }}</span></td>
+              <td>
+                {% if req.status == 'pending' %}
+                  <span class="cn-badge cn-badge-warning">Pending</span>
+                {% else %}
+                  <span class="cn-badge cn-badge-success">Resolved</span>
+                {% endif %}
+              </td>
+              <td style="color:var(--on-surface-muted); font-size:0.8125rem;">{{ req.created_at|date:"M d, Y" }}</td>
+              <td>
+                <form method="POST" action="{% url 'update_complaint_status' req.id %}">
+                  {% csrf_token %}
+                  <select name="status" class="cn-admin-select" style="padding:0.5rem 1rem; border-radius:var(--radius-md);" onchange="this.form.submit()">
+                    <option value="pending" {% if req.status == 'pending' %}selected{% endif %}>Wait</option>
+                    <option value="resolved" {% if req.status == 'resolved' %}selected{% endif %}>Done</option>
+                  </select>
+                </form>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align:center; padding:4rem; color:var(--on-surface-muted);">No requests match criteria.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    {% elif active_tab == 'allocations' %}
+    <!-- ALLOCATIONS TAB -->
+    <div class="cn-admin-panel">
+      <div class="cn-panel-header">
+        <h2 class="cn-panel-title"><i class="fa-solid fa-home"></i> Room Allocations</h2>
+        <div class="cn-admin-filters">
+          <select class="cn-admin-select" onchange="location = this.value;">
+            <option value="?tab=allocations" {% if not status_filter %}selected{% endif %}>All Allocations</option>
+            <option value="?tab=allocations&status=pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending Approval</option>
+            <option value="?tab=allocations&status=approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved (Ready for Payment)</option>
+            <option value="?tab=allocations&status=confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmed (Paid)</option>
+            <option value="?tab=allocations&status=cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+          </select>
+          <form method="GET" action="{% url 'view_allocations' %}" class="cn-admin-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" name="search" placeholder="Search..." value="{{ search_query }}">
+          </form>
+        </div>
+      </div>
+
+      <div class="cn-table-wrapper">
+        <table class="cn-table">
+          <thead>
+            <tr><th>Student</th><th>Hostel & Room</th><th>Status</th><th>Date</th><th>Review</th></tr>
+          </thead>
+          <tbody>
+            {% for a in allocations %}
+            <tr>
+              <td><div style="font-weight:700;">{{ a.user.email }}</div></td>
+              <td>
+                <div style="color:var(--on-surface-muted); font-size:0.75rem; text-transform:uppercase;">{{ a.room.hostel.name }}</div>
+                <div style="font-weight:800; color:var(--primary);"><i class="fa-solid fa-door-open" style="margin-right:6px;"></i>Room {{ a.room.room_number }}</div>
+              </td>
+              <td>
+                {% if a.status == 'confirmed' %}<span class="cn-badge cn-badge-success">Confirmed</span>
+                {% elif a.status == 'pending' %}<span class="cn-badge cn-badge-warning">Pending</span>
+                {% else %}<span class="cn-badge cn-badge-danger">{{ a.status|title }}</span>{% endif %}
+              </td>
+              <td style="color:var(--on-surface-muted); font-size:0.875rem;">{{ a.allocation_date|date:"M d, Y" }}</td>
+              <td>
+                <div class="cn-action-group">
+                  {% if a.status == 'pending' %}
+                    <a href="{% url 'approve_allocation' a.id %}" class="cn-icon-btn success" title="Approve"><i class="fa-solid fa-check"></i></a>
+                    <a href="{% url 'reject_allocation' a.id %}" class="cn-icon-btn danger" title="Reject"><i class="fa-solid fa-xmark"></i></a>
+                  {% endif %}
+                  {% if a.status != 'cancelled' %}
+                    <a href="{% url 'cancel_allocation' a.id %}" class="cn-icon-btn danger" title="Cancel Booking" onclick="return confirm('Cancel this booking permanently?')"><i class="fa-solid fa-ban"></i></a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" style="text-align:center; padding:4rem; color:var(--on-surface-muted);">No allocations found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    {% elif active_tab == 'events' or active_tab == 'add_event' %}
+    <!-- EVENTS / ADD EVENT TABS -->
+    <div class="cn-admin-panel">
+      {% if active_tab == 'add_event' %}
+      <div class="cn-panel-header">
+        <h2 class="cn-panel-title"><i class="fa-solid fa-calendar-plus"></i> Add Event</h2>
+        <a href="?tab=events" class="cn-btn cn-btn-ghost" style="border:1px solid var(--outline-variant);"><i class="fa-solid fa-arrow-left"></i> Back to Events</a>
+      </div>
+      <div style="max-width:600px;">
+        <form method="POST" class="django-form">
+          {% csrf_token %}
+          <!-- Django form fields generic restyling applies from global base but let's add specific style wrapper -->
+          <style>
+              .django-form p { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+              .django-form label { font-size: 0.8125rem; font-weight: 700; color: var(--on-surface-faint); text-transform: uppercase; letter-spacing: 0.05em; }
+              .django-form input, .django-form select, .django-form textarea {
+                width: 100%; padding: 0.875rem 1rem; background: var(--bg-deep); border: 1px solid var(--outline-variant);
+                border-radius: var(--radius-md); color: var(--on-bg); font-family: var(--font); transition: all var(--transition);
+              }
+              .django-form input:focus, .django-form select:focus, .django-form textarea:focus {
+                border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(124,77,255,0.2);
+              }
+          </style>
+          {{ form.as_p }}
+          <button type="submit" class="cn-btn cn-btn-primary" style="margin-top:2rem;"><i class="fa-solid fa-calendar-check"></i> Save Event</button>
+        </form>
+      </div>
+
+      {% else %}
+      <div class="cn-panel-header">
+        <h2 class="cn-panel-title"><i class="fa-solid fa-calendar-days"></i> Event Calendar</h2>
+        <a href="?tab=add_event" class="cn-btn cn-btn-primary"><i class="fa-solid fa-plus"></i> Schedule Event</a>
+      </div>
+      <div class="cn-table-wrapper">
+        <table class="cn-table">
+          <thead><tr><th>Event Name</th><th>Schedule</th><th>Venue</th><th>Organizer</th><th>Action</th></tr></thead>
+          <tbody>
+            {% for evt in events %}
+            <tr>
+              <td style="font-weight:800; color:var(--tertiary);">{{ evt.name }}</td>
+              <td>
+                <div><i class="fa-regular fa-calendar" style="margin-right:6px; color:var(--on-surface-muted);"></i>{{ evt.date }}</div>
+                <div style="font-size:0.8125rem; color:var(--primary); margin-top:0.25rem;"><i class="fa-regular fa-clock" style="margin-right:6px;"></i>{{ evt.time }}</div>
+              </td>
+              <td><span class="cn-badge cn-badge-dark"><i class="fa-solid fa-location-dot"></i> {{ evt.venue }}</span></td>
+              <td>{{ evt.organizer }}</td>
+              <td>
+                <div class="cn-action-group">
+                  <a href="{% url 'update' evt.id %}" class="cn-icon-btn"><i class="fa-solid fa-pen"></i></a>
+                  <a href="{% url 'delete' evt.id %}" class="cn-icon-btn danger" onclick="return confirm('Delete event permanently?')"><i class="fa-solid fa-trash"></i></a>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" style="text-align:center; padding:4rem; color:var(--on-surface-muted);">No events scheduled.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+
+
+    {% elif active_tab == 'mess' %}
+    <!-- MESS MENU TAB -->
+    <div class="cn-admin-panel">
+      <div class="cn-panel-header">
+        <h2 class="cn-panel-title"><i class="fa-solid fa-utensils"></i> Mess Menu Configurator</h2>
+        <div class="cn-admin-filters">
+          <select class="cn-admin-select" onchange="location = this.value;">
+            <option value="?tab=mess" {% if not day_filter %}selected{% endif %}>All Days</option>
+            {% for day in days %}
+            <option value="?tab=mess&day={{ day|lower }}" {% if day_filter == day|lower %}selected{% endif %}>{{ day }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 2fr 1fr; gap:2rem;">
+        
+        <!-- Menu List -->
+        <div class="cn-table-wrapper" style="border: 1px solid var(--glass-border); border-radius:var(--radius-lg);">
+          <table class="cn-table">
+            <thead><tr><th>Day</th><th>Meal Type</th><th>Menu Outline</th><th>Actions</th></tr></thead>
+            <tbody>
+              {% for menu in menus %}
+              <tr>
+                <td style="font-weight:800;">{{ menu.day }}</td>
+                <td>
+                  <span class="cn-badge {% if menu.meal_type|lower == 'breakfast' %}cn-badge-info{% elif menu.meal_type|lower == 'lunch' %}cn-badge-warning{% else %}cn-badge-success{% endif %}">
+                    {{ menu.meal_type }}
+                  </span>
+                </td>
+                <td style="font-style:italic;">{{ menu.menu }}</td>
+                <td>
+                  <div class="cn-action-group">
+                    <a href="{% url 'update_mess_menu' menu.id %}" class="cn-icon-btn"><i class="fa-solid fa-pen"></i></a>
+                    <form action="{% url 'delete_mess_menu' menu.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="cn-icon-btn danger" onclick="return confirm('Delete menu item?')"><i class="fa-solid fa-trash"></i></button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4" style="text-align:center; padding:3rem; color:var(--on-surface-muted);">No menu items found.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Add Menu Form -->
+        <div style="background:var(--bg-deep); padding:2rem; border-radius:var(--radius-lg); border:1px solid var(--outline-variant); height:fit-content;">
+          <h3 style="font-size:1.125rem; font-weight:800; margin-bottom:1.5rem; color:var(--on-bg);">Add Menu Config</h3>
+          <form method="POST" class="django-form">
+            {% csrf_token %}
+            <style>
+              .django-form p { margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+              .django-form label { font-size: 0.8125rem; font-weight: 700; color: var(--on-surface-faint); text-transform: uppercase; letter-spacing: 0.05em; }
+              .django-form input, .django-form select, .django-form textarea { width: 100%; padding: 0.75rem 1rem; background: var(--surface-low); border: 1px solid var(--outline-variant); border-radius: var(--radius-md); color: var(--on-bg); font-family: var(--font); }
+            </style>
+            {{ form.as_p }}
+            <button type="submit" class="cn-btn cn-btn-primary" style="width:100%; margin-top:1rem;"><i class="fa-solid fa-plus-circle"></i> Save</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+
+    {% elif active_tab == 'manage_claims' %}
+    <!-- LOST & FOUND CLAIMS TAB -->
+    <div class="cn-admin-panel">
+      <div class="cn-panel-header">
+        <h2 class="cn-panel-title"><i class="fa-solid fa-box-open"></i> Lost & Found Claims</h2>
+      </div>
+
+      <div class="cn-stats-grid" style="grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));">
+        {% for claim in claims %}
+        <div class="cn-stat-card" style="display:flex; flex-direction:column; justify-content:space-between; gap:1.5rem;">
+          <div>
+            <div style="font-size:0.75rem; color:var(--primary); text-transform:uppercase; font-weight:800; margin-bottom:0.5rem; letter-spacing:0.05em;">Claim Request</div>
+            <h4 style="font-size:1.25rem; font-weight:800; color:var(--on-bg); margin-bottom:1rem;">{{ claim.item.title }}</h4>
+            <div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.875rem; color:var(--on-surface-muted);">
+              <div><strong style="color:var(--on-bg);">Found:</strong> {{ claim.item.date_found }} at {{ claim.item.location }}</div>
+              <div><strong style="color:var(--on-bg);">Description:</strong> {{ claim.item.description }}</div>
+              <div style="margin-top:1rem; padding:1rem; background:rgba(255,180,171,0.05); border-radius:var(--radius-md); border:1px dashed rgba(255,180,171,0.2);">
+                <strong style="color:var(--error); display:block; margin-bottom:0.5rem;">Claimers Proof:</strong>
+                <span style="font-style:italic;">"{{ claim.message }}"</span>
+              </div>
+            </div>
+          </div>
+          <a href="{% url 'approve_claim' claim.id %}" class="cn-btn cn-btn-primary" style="justify-content:center; background:var(--success);"><i class="fa-solid fa-check"></i> Approve Claim</a>
+        </div>
+        {% empty %}
+        <div style="grid-column: 1/-1; text-align:center; padding:4rem; color:var(--on-surface-muted);">No active lost & found claims.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+
+    {% elif active_tab == 'notifications' %}
+    <!-- NOTIFICATIONS / DISCUSSIONS TAB -->
+    <div class="cn-admin-panel">
+        <div class="cn-panel-header">
+          <h2 class="cn-panel-title"><i class="fa-solid fa-bell"></i> Broadcast & Notifications</h2>
+        </div>
+        <div style="height:400px; display:flex; align-items:center; justify-content:center; border:1px dashed var(--outline-variant); border-radius:var(--radius-lg); background:var(--bg-deep);">
+           <p style="color:var(--on-surface-muted); font-size:1.125rem;"><i class="fa-solid fa-wrench" style="margin-right:8px; color:var(--tertiary);"></i> Premium discussion interface is live via real-time hooks.</p>
+        </div>
+    </div>
+
+
+    {% else %}
+    <!-- GENERIC FALLBACK / PRESERVE OTHER TABS -->
+    <div class="cn-admin-panel">
+      <h2 class="cn-panel-title"><i class="fa-solid fa-puzzle-piece"></i> Administrative Module</h2>
+      <p style="color:var(--on-surface-muted); margin-top:1rem;">Select an administrative function from the sidebar to manage CampusNest securely.</p>
+    </div>
+    {% endif %}
+
+  </main>
+</div>
+{% endblock %}

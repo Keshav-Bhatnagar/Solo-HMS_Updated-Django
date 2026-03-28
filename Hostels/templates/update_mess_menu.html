@@ -1,0 +1,169 @@
+{% extends 'Rooms_base.html' %}
+{% load static %}
+
+{% block title %}Update Mess Menu – Admin CampusNest{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Admin Layout for Form Pages */
+  .cn-admin-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+    max-width: 1600px;
+    margin: 2rem auto 6rem;
+    padding: 0 1.5rem;
+  }
+  @media (max-width: 1024px) {
+    .cn-admin-layout { grid-template-columns: 1fr; }
+  }
+
+  /* Glass Sidebar */
+  .cn-admin-sidebar {
+    background: var(--surface);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    padding: 2rem 1rem;
+    position: sticky;
+    top: 100px;
+    height: calc(100vh - 120px);
+    overflow-y: auto;
+    box-shadow: var(--shadow-card);
+  }
+  .cn-admin-sidebar::-webkit-scrollbar { width: 4px; }
+  
+  .cn-admin-brand { display: flex; align-items: center; gap: 1rem; margin-bottom: 3rem; padding: 0 1rem; }
+  .cn-admin-brand i { font-size: 2rem; color: var(--primary); }
+  .cn-admin-brand h2 { font-size: 1.25rem; font-weight: 900; color: var(--on-bg); }
+
+  .cn-nav-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .cn-nav-item {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    color: var(--on-surface-muted);
+    font-weight: 700;
+    transition: all var(--transition);
+  }
+  .cn-nav-item i { width: 20px; text-align: center; }
+  .cn-nav-item:hover { background: rgba(255,255,255,0.05); color: var(--on-bg); }
+  .cn-nav-item.active { background: rgba(124,77,255,0.15); color: var(--primary); border: 1px solid rgba(124,77,255,0.3); }
+
+  /* Main Area Background Options */
+  .cn-admin-main { display: flex; flex-direction: column; gap: 2rem; }
+  
+  .cn-admin-header {
+    background: var(--surface-low);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 2rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .cn-admin-header h1 { font-size: 1.75rem; font-weight: 800; color: var(--on-bg); margin-bottom: 0.25rem; }
+  .cn-admin-breadcrumb { font-size: 0.8125rem; color: var(--on-surface-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .cn-admin-profile { display: flex; align-items: center; gap: 1rem; }
+  .cn-admin-profile i { font-size: 2.5rem; color: var(--tertiary); }
+  .cn-admin-pro-details { display: flex; flex-direction: column; }
+  .cn-admin-pro-name { font-weight: 800; color: var(--on-bg); }
+  .cn-admin-pro-role { font-size: 0.75rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* Django Form Styler contained in Panel */
+  .cn-admin-panel {
+    background: var(--surface); border: 1px solid var(--glass-border); border-radius: var(--radius-xl);
+    padding: 2.5rem 3rem; position: relative; overflow: hidden; box-shadow: var(--shadow-card);
+    max-width: 800px;
+  }
+  .django-form p { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .django-form label { font-size: 0.8125rem; font-weight: 700; color: var(--on-surface-faint); text-transform: uppercase; letter-spacing: 0.05em; }
+  .django-form input, .django-form select, .django-form textarea {
+    width: 100%; padding: 0.875rem 1rem; background: var(--bg-deep); border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-md); color: var(--on-bg); font-family: var(--font); transition: all var(--transition);
+  }
+  .django-form input:focus, .django-form select:focus, .django-form textarea:focus {
+    border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(124,77,255,0.2);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cn-admin-layout">
+  
+  <aside class="cn-admin-sidebar">
+    <div class="cn-admin-brand">
+      <i class="fa-solid fa-cube"></i>
+      <h2>CampusNest</h2>
+    </div>
+    <nav class="cn-nav-list">
+      <a href="{% url 'admin_dashboard' %}?tab=overview" class="cn-nav-item"><i class="fas fa-tachometer-alt"></i> Overview</a>
+      <a href="{% url 'view_users' %}" class="cn-nav-item"><i class="fas fa-users"></i> Users</a>
+      <a href="{% url 'view_requests' %}" class="cn-nav-item"><i class="fas fa-tools"></i> Requests</a>
+      <a href="{% url 'view_allocations' %}" class="cn-nav-item"><i class="fas fa-home"></i> Allocations</a>
+      <a href="{% url 'admin_dashboard' %}?tab=change_room" class="cn-nav-item"><i class="fas fa-exchange-alt"></i> Change Room</a>
+      <a href="{% url 'admin_dashboard' %}?tab=events" class="cn-nav-item"><i class="fas fa-calendar-alt"></i> Events</a>
+      <a href="{% url 'admin_dashboard' %}?tab=mess" class="cn-nav-item active"><i class="fas fa-utensils"></i> Mess Menu</a>
+      <a href="{% url 'admin_dashboard' %}?tab=manage_claims" class="cn-nav-item"><i class="fas fa-box-open"></i> Lost & Found</a>
+      <a href="{% url 'admin_dashboard' %}?tab=notifications" class="cn-nav-item"><i class="fas fa-bell"></i> Notifications</a>
+    </nav>
+  </aside>
+
+  <main class="cn-admin-main">
+    
+    <header class="cn-admin-header">
+      <div>
+        <h1>Update Mess Menu</h1>
+        <div class="cn-admin-breadcrumb">Admin Workspace <i class="fa-solid fa-chevron-right" style="font-size:0.6rem; margin:0 0.5rem; opacity:0.5;"></i> Manage Menu</div>
+      </div>
+      <div class="cn-admin-profile">
+        <div class="cn-admin-pro-details" style="text-align:right;">
+          <span class="cn-admin-pro-name">{{ request.user.get_full_name }}</span>
+          <span class="cn-admin-pro-role">System Admin</span>
+        </div>
+        <i class="fa-solid fa-circle-user"></i>
+      </div>
+    </header>
+
+    <div class="cn-admin-panel">
+      <h3 style="font-size:1.5rem; font-weight:800; color:var(--on-bg); margin-bottom:2rem;"><i class="fa-solid fa-pen-to-square" style="color:var(--primary); margin-right:8px;"></i> Update Menu Configuration</h3>
+      
+      <form method="POST" class="django-form">
+          {% csrf_token %}
+          <p>
+              <label for="id_day">Scheduled Day</label>
+              <select name="day" id="id_day" required>
+                  <option value="Monday" {% if menu_item.day == "Monday" %}selected{% endif %}>Monday</option>
+                  <option value="Tuesday" {% if menu_item.day == "Tuesday" %}selected{% endif %}>Tuesday</option>
+                  <option value="Wednesday" {% if menu_item.day == "Wednesday" %}selected{% endif %}>Wednesday</option>
+                  <option value="Thursday" {% if menu_item.day == "Thursday" %}selected{% endif %}>Thursday</option>
+                  <option value="Friday" {% if menu_item.day == "Friday" %}selected{% endif %}>Friday</option>
+                  <option value="Saturday" {% if menu_item.day == "Saturday" %}selected{% endif %}>Saturday</option>
+                  <option value="Sunday" {% if menu_item.day == "Sunday" %}selected{% endif %}>Sunday</option>
+              </select>
+          </p>
+          <p>
+              <label for="id_meal_type">Meal Category</label>
+              <select name="meal_type" id="id_meal_type" required>
+                  <option value="Breakfast" {% if menu_item.meal_type == "Breakfast" %}selected{% endif %}>Breakfast</option>
+                  <option value="Lunch" {% if menu_item.meal_type == "Lunch" %}selected{% endif %}>Lunch</option>
+                  <option value="Dinner" {% if menu_item.meal_type == "Dinner" %}selected{% endif %}>Dinner</option>
+              </select>
+          </p>
+          <p>
+              <label for="id_menu">Culinary Details</label>
+              <textarea name="menu" id="id_menu" required rows="4">{{ menu_item.menu }}</textarea>
+          </p>
+          
+          <div style="display:flex; gap:1rem; margin-top:3rem;">
+            <button type="submit" class="cn-btn cn-btn-primary" style="padding:1rem 2rem; font-size:1rem;">
+                <i class="fa-solid fa-floppy-disk"></i> Save Changes
+            </button>
+            <a href="{% url 'admin_dashboard' %}?tab=mess" class="cn-btn cn-btn-ghost" style="padding:1rem 2rem; border:1px solid var(--outline-variant); font-size:1rem;">
+                Cancel
+            </a>
+          </div>
+      </form>
+    </div>
+
+  </main>
+</div>
+{% endblock %}

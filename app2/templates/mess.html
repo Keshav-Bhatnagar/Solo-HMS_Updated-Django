@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Institutional Mess Protocol – CampusConnect{% endblock %}
+
+{% block content %}
+<div class="cn-subheader">
+  <span class="cn-badge cn-badge-primary">Gastronomic Engine</span>
+  <h1>Institutional Mess</h1>
+  <p>Real-time dietary protocols and nutritional intake schedules.</p>
+</div>
+
+<div class="container" style="padding: 3rem 1.5rem;">
+  
+  {% if today_menu %}
+  <section class="cn-bento-hero" style="margin-bottom: 4rem;">
+    <div class="cc-hero-elite" style="border-radius: var(--radius-xl); text-align: left; padding: 4rem; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <span class="cn-badge cn-badge-warning animate-up">Today's Protocol: {{ today_menu.day }}</span>
+        <h2 class="animate-up delay-1" style="font-size: 3rem; margin: 1rem 0;">{{ today_menu.meal_type }}</h2>
+        <p class="animate-up delay-2" style="font-size: 1.25rem; color: var(--on-surface-muted);">{{ today_menu.menu }}</p>
+      </div>
+      <div class="animate-up delay-3" style="font-size: 8rem; color: var(--surface-variant);">
+        <i class="fa-solid fa-bell-concierge"></i>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <div style="display: grid; grid-template-columns: 1fr 300px; gap: 2rem;">
+    <!-- Menu Grid -->
+    <div>
+      <div style="display: flex; gap: 1rem; margin-bottom: 2rem; overflow-x: auto; padding-bottom: 1rem;">
+        <a href="?day=" class="cn-btn cn-btn-sm {% if not day_filter %}cn-btn-primary{% else %}cn-btn-ghost{% endif %}">All</a>
+        {% for day in days %}
+          <a href="?day={{ day|lower }}" class="cn-btn cn-btn-sm {% if day_filter == day|lower %}cn-btn-primary{% else %}cn-btn-ghost{% endif %}">{{ day }}</a>
+        {% endfor %}
+      </div>
+
+      <div style="display: grid; gap: 1.5rem;">
+        {% for menu in menus %}
+        <div class="cn-bento-card" style="padding: 2rem; background: var(--surface-card); border: 1px solid var(--outline); border-radius: var(--radius-lg); display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <span style="color: var(--primary); font-weight: 700; font-size: 0.875rem; text-transform: uppercase;">{{ menu.day }}</span>
+            <h3 style="font-size: 1.5rem; margin: 0.5rem 0;">{{ menu.meal_type }}</h3>
+            <p style="color: var(--on-surface-muted);">{{ menu.menu }}</p>
+          </div>
+          {% if user.is_staff %}
+          <div style="display: flex; gap: 0.5rem;">
+            <a href="{% url 'set_today_menu' menu.id %}" class="cn-btn cn-btn-sm cn-btn-outline">Set Active</a>
+            <a href="{% url 'update_mess_menu' menu.id %}" class="cn-btn cn-btn-sm cn-btn-ghost"><i class="fa-solid fa-pen"></i></a>
+          </div>
+          {% endif %}
+        </div>
+        {% empty %}
+        <div style="text-align: center; padding: 4rem; color: var(--on-surface-muted);">
+          <i class="fa-solid fa-plate-wheat" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+          <p>No menus scheduled for this protocol.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Rules Sidebar -->
+    <div>
+      <div style="background: var(--surface-raised); border-radius: var(--radius-lg); border: 1px solid var(--outline); padding: 2rem; position: sticky; top: 100px;">
+        <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-scale-balanced" style="color: var(--primary);"></i> Mess Rules</h3>
+        <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1rem;">
+          {% for rule in rules %}
+          <li style="font-size: 0.9375rem; color: var(--on-surface-muted); display: flex; gap: 0.75rem;">
+            <i class="fa-solid fa-check" style="color: var(--success); margin-top: 0.25rem;"></i>
+            <span>{{ rule.rule_text }}</span>
+          </li>
+          {% empty %}
+          <li style="color: var(--on-surface-faint);">No institutional rules defined.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

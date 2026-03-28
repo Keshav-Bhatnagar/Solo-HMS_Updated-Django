@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Manage Claims - Lost & Found{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  {% if request.user.is_staff %}
+    <h2>Manage Claims</h2>
+    <p>Redirecting to admin dashboard...</p>
+    <meta http-equiv="refresh" content="2;url={% url 'admin_dashboard' %}?tab=manage_claims">
+  {% else %}
+    <div class="alert alert-danger">
+      You do not have permission to access this page.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

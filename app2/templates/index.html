@@ -1,0 +1,370 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CampusConnect | The Heart of Campus Life{% endblock %}
+
+{% block content %}
+<section class="cc-hero-elite">
+  <div class="cc-hero-content">
+    <span class="cn-badge-premium animate-up">Elite Campus Ecosystem</span>
+    <h1 class="animate-up delay-1">Digital Campus Heart</h1>
+    <p class="animate-up delay-2">Synchronizing mess cycles, peer-to-peer commerce, and institutional events in one seamless interface.</p>
+    <div class="cc-hero-stats animate-up delay-3">
+      <div class="cc-stat-item">
+        <span class="cc-stat-value">500+</span>
+        <span class="cc-stat-label">Verified Students</span>
+      </div>
+      <div class="cc-stat-divider"></div>
+      <div class="cc-stat-item">
+        <span class="cc-stat-value">12</span>
+        <span class="cc-stat-label">Active Events</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cc-bento-grid-container">
+  <div class="cc-bento-grid">
+    <!-- Big Card: Marketplace -->
+    <a href="{% url 'marketplace' %}" class="cc-bento-card card-tall marketplace-card">
+      <div class="card-bg-mesh"></div>
+      <div class="card-content">
+        <div class="card-icon"><i class="fa-solid fa-shop"></i></div>
+        <div class="card-info">
+          <h2>Peer Marketplace</h2>
+          <p>Trade study materials, electronics, and hostel essentials within the student network.</p>
+        </div>
+        <div class="card-footer-action">
+          <span>Enter Marketplace</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+      </div>
+    </a>
+
+    <!-- Medium: Mess Menu -->
+    <a href="{% url 'mess' %}" class="cc-bento-card card-wide mess-card">
+      <div class="card-content">
+        <div class="card-icon"><i class="fa-solid fa-utensils"></i></div>
+        <div class="card-info">
+          <h2>Institutional Mess</h2>
+          <p>Real-time meal tracking and dietary schedules.</p>
+        </div>
+        <div class="mess-preview-slots">
+          <div class="slot"><span>B</span></div>
+          <div class="slot"><span>L</span></div>
+          <div class="slot"><span>S</span></div>
+          <div class="slot active"><span>D</span></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- Small: Lost & Found -->
+    <a href="{% url 'lost_and_found_dashboard' %}" class="cc-bento-card small-card lf-card">
+      <div class="card-content">
+        <div class="card-icon"><i class="fa-solid fa-box-open"></i></div>
+        <h3>Registry</h3>
+        <p>Lost & Found tracking.</p>
+      </div>
+    </a>
+
+    <!-- Small: Discussion -->
+    <a href="{% url 'discussion_center' %}" class="cc-bento-card small-card discussion-card">
+      <div class="card-content">
+        <div class="card-icon"><i class="fa-solid fa-comments"></i></div>
+        <h3>Hub</h3>
+        <p>Live Campus Discussions.</p>
+      </div>
+    </a>
+
+    <!-- Long horizontal: Upcoming Events -->
+    <section class="cc-bento-card card-full events-bento">
+      <div class="card-content">
+        <div class="events-header-bento">
+          <h2>Institutional Event Matrix</h2>
+          <a href="{% url 'events' %}" class="cn-btn-sm-ghost">View Matrix</a>
+        </div>
+        <div class="events-mini-list">
+          {% if show %}
+            {% for event in show|slice:":3" %}
+            <div class="event-mini-item">
+              <div class="event-date-chip">
+                <span class="day">{{ event.date|date:"d" }}</span>
+                <span class="month">{{ event.date|date:"M" }}</span>
+              </div>
+              <div class="event-text">
+                <h4>{{ event.name }}</h4>
+                <p>{{ event.venue }} • {{ event.time }}</p>
+              </div>
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+            {% endfor %}
+          {% else %}
+            <p class="no-events-text">No pending campus maneuvers scheduled.</p>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<style>
+.cc-hero-elite {
+  padding: 8rem 2rem 4rem;
+  text-align: center;
+  background: var(--surface);
+  border-bottom: 1px solid var(--outline);
+  overflow: hidden;
+}
+
+.cn-badge-premium {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: rgba(0, 245, 255, 0.1);
+  color: var(--primary);
+  border: 1px solid rgba(0, 245, 255, 0.3);
+  border-radius: 100px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-up {
+  opacity: 0;
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.delay-1 { animation-delay: 0.2s; }
+.delay-2 { animation-delay: 0.4s; }
+.delay-3 { animation-delay: 0.6s; }
+
+.cc-hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cc-hero-content h1 {
+  font-size: 4rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  margin: 1.5rem 0;
+  line-height: 1;
+}
+
+.cc-hero-content p {
+  font-size: 1.25rem;
+  color: var(--on-surface-muted);
+  line-height: 1.6;
+}
+
+.cc-hero-stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+  margin-top: 3rem;
+}
+
+.cc-stat-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.cc-stat-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.cc-stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--on-surface-faint);
+}
+
+.cc-stat-divider {
+  width: 1px;
+  height: 40px;
+  background: var(--outline);
+}
+
+/* Bento Grid */
+.cc-bento-grid-container {
+  padding: 4rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.cc-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 200px;
+  gap: 1.5rem;
+}
+
+.cc-bento-card {
+  background: var(--surface-card);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.cc-bento-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-tall { grid-row: span 2; }
+.card-wide { grid-column: span 2; }
+.card-full { grid-column: span 4; grid-row: span 2; }
+.small-card { grid-column: span 1; }
+
+.marketplace-card {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  color: #fff;
+}
+
+.marketplace-card .card-info h2 { color: #fff; }
+.marketplace-card .card-bg-mesh {
+  position: absolute;
+  top: 0; right: 0; width: 100%; height: 100%;
+  background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.2), transparent);
+  pointer-events: none;
+}
+
+.card-icon {
+  font-size: 2rem;
+  color: var(--primary);
+  margin-bottom: auto;
+}
+
+.marketplace-card .card-icon { color: #3b82f6; }
+
+.card-info h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-info p {
+  font-size: 0.9375rem;
+  color: var(--on-surface-muted);
+  line-height: 1.4;
+}
+
+.marketplace-card .card-info p { color: #94a3b8; }
+
+.card-footer-action {
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.mess-preview-slots {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.mess-preview-slots .slot {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: var(--surface-variant);
+  display: grid; place-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--on-surface-faint);
+}
+
+.mess-preview-slots .slot.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Events Matrix Mini */
+.events-bento .card-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.events-header-bento {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.events-mini-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.event-mini-item {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.25rem;
+  background: var(--surface-low);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--outline);
+  transition: var(--transition);
+}
+
+.event-mini-item:hover {
+  background: var(--surface-variant);
+  border-color: var(--primary);
+}
+
+.event-date-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--surface-card);
+  padding: 0.5rem;
+  border-radius: 12px;
+  min-width: 50px;
+  border: 1px solid var(--outline);
+}
+
+.event-date-chip .day { font-size: 1.25rem; font-weight: 800; color: var(--on-surface); }
+.event-date-chip .month { font-size: 0.625rem; text-transform: uppercase; color: var(--primary); font-weight: 700; }
+
+.event-text h4 { font-size: 1rem; margin-bottom: 0.25rem; }
+.event-text p { font-size: 0.8125rem; color: var(--on-surface-muted); }
+
+.event-mini-item i { margin-left: auto; color: var(--on-surface-faint); }
+
+@media (max-width: 1100px) {
+  .cc-bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .card-full { grid-column: span 2; }
+}
+
+@media (max-width: 600px) {
+  .cc-bento-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+  }
+  .card-tall, .card-wide, .card-full, .small-card { grid-column: span 1; grid-row: auto; }
+  .cc-hero-content h1 { font-size: 2.5rem; }
+}
+</style>
+{% endblock %}

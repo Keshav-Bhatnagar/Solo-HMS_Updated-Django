@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Claim Item – CampusConnect{% endblock %}
+
+{% block extra_css %}
+<style>
+  .claim-page { padding: 6rem 1.5rem; max-width: 800px; margin: 0 auto; }
+  .item-preview {
+    background: var(--bg-subtle);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2.5rem;
+    border-left: 4px solid var(--primary);
+  }
+  .preview-row { display: flex; gap: 1rem; margin-bottom: 0.75rem; font-size: 0.9375rem; }
+  .preview-row strong { color: var(--on-bg); min-width: 100px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="claim-page">
+  <div class="cn-card">
+    <div style="text-align: center; margin-bottom: 3rem;">
+      <i class="fa-solid fa-hand-holding-heart" style="font-size: 3rem; color: var(--primary); margin-bottom: 1.5rem;"></i>
+      <h1 class="font-heading" style="font-size: 2.25rem; font-weight: 800;">Submit a Claim</h1>
+      <p style="color: var(--on-surface-muted);">Please provide evidence that this item belongs to you.</p>
+    </div>
+
+    <div class="item-preview">
+      <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Item Details</h3>
+      <div class="preview-row"><strong>Title:</strong> {{ item.title }}</div>
+      <div class="preview-row"><strong>Category:</strong> {{ item.get_category_display }}</div>
+      <div class="preview-row"><strong>Found On:</strong> {{ item.date_found }}</div>
+      <div class="preview-row"><strong>Location:</strong> {{ item.location }}</div>
+      <div class="preview-row"><strong>Description:</strong> {{ item.description }}</div>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="cn-input-group">
+        <label class="cn-label">Claim Evidence / Message</label>
+        {{ form.message }}
+        <div style="font-size: 0.75rem; color: var(--on-surface-faint); margin-top: 0.5rem;">
+          Include specific details (unique marks, contents, where exactly you lost it) to help the finder verify your ownership.
+        </div>
+        {% if form.message.errors %}<div style="color:var(--error); font-size:0.75rem;">{{ form.message.errors }}</div>{% endif %}
+      </div>
+      
+      <button type="submit" class="cn-btn cn-btn-primary" style="width: 100%; padding: 1rem; margin-top: 1.5rem;">
+        Submit Claim Request <i class="fa-solid fa-check-double" style="margin-left: 0.5rem;"></i>
+      </button>
+      
+      <a href="{% url 'lost_and_found_dashboard' %}" class="cn-btn cn-btn-ghost" style="width: 100%; margin-top: 1rem;">
+        Back to Dashboard
+      </a>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,236 @@
+{% extends 'Rooms_base.html' %}
+{% load static %}
+
+{% block title %}About | CampusNest{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Aetheris About Page Styling */
+  .cn-about-hero {
+    position: relative;
+    padding: 8rem 1.5rem 6rem;
+    text-align: center;
+    overflow: hidden;
+  }
+  .cn-hero-bg {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, var(--primary-container) 0%, transparent 70%);
+    z-index: -1;
+    opacity: 0.5;
+    filter: blur(60px);
+  }
+  .cn-about-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: var(--on-bg);
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--on-bg), var(--primary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .cn-about-subtitle {
+    font-size: 1.25rem;
+    color: var(--on-surface-muted);
+    font-weight: 500;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Grid Layouts */
+  .cn-section {
+    padding: 6rem 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .cn-section-title {
+    text-align: center;
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--on-bg);
+    margin-bottom: 4rem;
+  }
+  .cn-section-title span { color: var(--primary); }
+
+  .cn-feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+  
+  .cn-feature-card {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-xl);
+    padding: 3rem 2rem;
+    text-align: center;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .cn-feature-card::before {
+    content: '';
+    position: absolute; top:0; left:0; right:0; height:4px;
+    background: var(--primary);
+    opacity: 0; transition: opacity var(--transition);
+  }
+  .cn-feature-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+  .cn-feature-card:hover::before { opacity: 1; }
+  
+  .cn-feature-icon {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: var(--surface-highest);
+    color: var(--primary);
+    font-size: 2rem;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.5rem;
+  }
+  .cn-feature-card h3 { font-size: 1.25rem; font-weight: 800; color: var(--on-bg); margin-bottom: 0.75rem; }
+  .cn-feature-card p { font-size: 0.9375rem; color: var(--on-surface-muted); line-height: 1.5; }
+
+  /* Team Section */
+  .cn-team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 3rem;
+  }
+  .cn-team-card {
+    text-align: center;
+  }
+  .cn-team-photo {
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+    background: var(--bg-subtle);
+    border: 1px solid var(--outline);
+    padding: 0.5rem;
+    position: relative;
+    box-shadow: var(--shadow-md);
+  }
+  .cn-team-photo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  
+  .cn-team-card h4 { font-size: 1.25rem; font-weight: 800; color: var(--on-bg); }
+  .cn-team-card p { font-size: 0.875rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* Reviews */
+  .cn-review-wrapper {
+      columns: 3;
+      column-gap: 2rem;
+  }
+  @media (max-width: 1024px) { .cn-review-wrapper { columns: 2; } }
+  @media (max-width: 640px) { .cn-review-wrapper { columns: 1; } }
+
+  .cn-review-card {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    break-inside: avoid;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+  }
+  .cn-review-card i.quote {
+    position: absolute; top: 1.5rem; right: 1.5rem;
+    font-size: 2rem; color: var(--on-surface-muted); opacity: 0.2;
+  }
+  .cn-review-text {
+    font-size: 1rem; color: var(--on-bg); font-style: italic; line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+  .cn-review-author {
+    font-size: 0.875rem; font-weight: 800; color: var(--primary);
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="cn-about-hero">
+    <div class="cn-hero-bg"></div>
+    <h1 class="cn-about-title">Revolutionizing Hostel Living</h1>
+    <p class="cn-about-subtitle">CampusNest empowers smart living with seamless, automated solutions designed for modern educational campuses.</p>
+</section>
+
+<!-- SERVICES -->
+<section class="cn-section">
+    <h2 class="cn-section-title">Why <span>CampusNest?</span></h2>
+    <div class="cn-feature-grid">
+        <div class="cn-feature-card">
+            <div class="cn-feature-icon"><i class="fa-solid fa-laptop-code"></i></div>
+            <h3>Intuitive Interface</h3>
+            <p>Our beautiful glassmorphic portals are engineered for speed, responsiveness, and zero learning curve.</p>
+        </div>
+        <div class="cn-feature-card">
+            <div class="cn-feature-icon" style="color:var(--success); background:rgba(34,211,165,0.1);"><i class="fa-solid fa-building-columns"></i></div>
+            <h3>200+ Institutions</h3>
+            <p>Trusted by premier institutions globally to manage room allocations and mess menus effortlessly.</p>
+        </div>
+        <div class="cn-feature-card">
+            <div class="cn-feature-icon" style="color:var(--tertiary); background:rgba(250,189,0,0.1);"><i class="fa-solid fa-star"></i></div>
+            <h3>Peer Reviewed</h3>
+            <p>150+ verified 5-star ratings from students praising the ease of maintenance requests and booking.</p>
+        </div>
+        <div class="cn-feature-card">
+            <div class="cn-feature-icon" style="color:#36a2eb; background:rgba(54,162,235,0.1);"><i class="fa-solid fa-headset"></i></div>
+            <h3>24/7 Support</h3>
+            <p>Dedicated digital concierge system with rapid resolution ticketing for all maintenance queries.</p>
+        </div>
+    </div>
+</section>
+
+<!-- TEAM -->
+<section class="cn-section" style="background: var(--surface-low); border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border);">
+    <h2 class="cn-section-title">The <span>Visionary</span></h2>
+    <div class="cn-team-grid" style="display:flex; justify-content:center;">
+        <div class="cn-team-card">
+            <div class="cn-team-photo">
+                <img src="{% static 'images/aboutuser1.png' %}" alt="Keshav Bhatnagar" onerror="this.src='https://ui-avatars.com/api/?name=Keshav+Bhatnagar&background=7c4dff&color=fff&size=200'">
+            </div>
+            <h4>Keshav Bhatnagar</h4>
+            <p>Founder & Lead Developer</p>
+        </div>
+    </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="cn-section">
+    <h2 class="cn-section-title">Community <span>Voices</span></h2>
+    
+    <div class="cn-review-wrapper">
+        <div class="cn-review-card">
+            <i class="fa-solid fa-quote-right quote"></i>
+            <p class="cn-review-text">"CampusNest turned our chaotic hostel allocations into a seamless digital journey. The new UI is simply breathtaking."</p>
+            <div class="cn-review-author">— Lakshya</div>
+        </div>
+        
+        <div class="cn-review-card">
+            <i class="fa-solid fa-quote-right quote"></i>
+            <p class="cn-review-text">"Excellent functionality, premium aesthetics, and the new Stripe intent payments flow flawlessly."</p>
+            <div class="cn-review-author">— Sujay</div>
+        </div>
+        
+        <div class="cn-review-card">
+            <i class="fa-solid fa-quote-right quote"></i>
+            <p class="cn-review-text">"The smartest hostel management suite. We love the dynamic Mess Menu features and transparent request tracking."</p>
+            <div class="cn-review-author">— Aslesha</div>
+        </div>
+        
+        {% for feedback in feedbacks %}
+        <div class="cn-review-card">
+            <i class="fa-solid fa-quote-right quote"></i>
+            <p class="cn-review-text">"{{ feedback.comments }}"</p>
+            <div class="cn-review-author">— {% if feedback.user %}{{ feedback.user.get_full_name }}{% else %}Dedicated Resident{% endif %}</div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,273 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Fonts (Early Loading) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CampusNest – Premium Hostel Management System for modern student living.">
+  <title>{% block title %}CampusNest – Your Smart Campus Home{% endblock %}</title>
+
+  <!-- Icons & CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="shortcut icon" href="{% static 'images/Favicon.png' %}" type="image/x-icon">
+  <link rel="stylesheet" href="{% static 'css/campusnest_premium.css' %}">
+
+  <!-- Theme Initialization & Performance Fix (Prevents Lagging FOUC) -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('cn-theme') || 'dark';
+      const doc = document.documentElement;
+      doc.setAttribute('data-theme', savedTheme);
+      // Disable transitions initially to prevent "laggy" paint
+      doc.classList.add('no-transitions');
+      window.addEventListener('load', () => {
+        setTimeout(() => doc.classList.remove('no-transitions'), 100);
+      });
+    })();
+  </script>
+
+  {% block extra_css %}{% endblock %}
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="cn-navbar" id="cn-navbar" role="navigation" aria-label="Main navigation">
+    <div class="cn-navbar-container">
+      <a href="{% url 'index' %}" class="cn-logo" aria-label="CampusNest Home">
+      <div class="cn-logo-icon"></div>
+      CampusNest
+    </a>
+
+    <div class="cn-nav-links" id="cn-nav-links">
+      {% if user.is_authenticated and user.is_staff %}
+        <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+      {% endif %}
+      <a href="{% url 'index' %}">Home</a>
+      <div class="cn-dropdown">
+        <a href="#" id="services-dropdown-toggle">
+          Services <i class="fa-solid fa-angle-down" style="font-size:0.75em; margin-left:2px;"></i>
+        </a>
+        <div class="cn-dropdown-menu" role="menu">
+          <a href="{% url 'room_allocation' %}" role="menuitem">Room Allocation</a>
+          <a href="{% url 'payment' %}" role="menuitem">Fee Payment</a>
+          <a href="{% url 'complaint_maintenance' %}" role="menuitem">Complaints</a>
+        </div>
+      </div>
+      <a href="{% url 'about' %}">About</a>
+      <a href="{% url 'app2index' %}">Connect</a>
+    </div>
+
+    <div class="cn-nav-actions">
+      <button class="cn-btn-icon" id="cn-theme-toggle" aria-label="Toggle theme">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+
+      {% if user.is_authenticated %}
+          <div class="cn-dropdown">
+            <button class="cn-nav-profile-btn" aria-haspopup="true" style="color:inherit;">
+              <div class="cn-profile-wrapper">
+                {% if user.student_profile.profile_picture %}
+                  <img src="{{ user.student_profile.profile_picture.url }}" alt="Profile" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                {% else %}
+                  <i class="fa-solid fa-user-circle"></i>
+                {% endif %}
+              </div>
+              <div class="cn-nav-user-info" style="line-height:1; text-align:left;">
+                <div style="font-weight:700; font-size:0.875rem; color:var(--on-bg);">{{ user.first_name|default:user.username }}</div>
+                <div style="font-size:0.6875rem; color:var(--on-surface-muted);">{% if user.is_staff %}Administrator{% else %}Student{% endif %}</div>
+              </div>
+              <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; opacity: 0.6; color:var(--on-surface-muted);"></i>
+            </button>
+            <div class="cn-dropdown-menu right">
+              <div class="cn-dropdown-header">Institutional Access</div>
+              <a href="{% url 'profiles' %}"><i class="fa-solid fa-user-gear"></i> Student Profile</a>
+              {% if user.is_staff %}
+                <a href="{% url 'admin_dashboard' %}"><i class="fa-solid fa-gauge-high"></i> Admin Dashboard</a>
+              {% endif %}
+              <a href="{% url 'index' %}"><i class="fa-solid fa-building-columns"></i> CampusNest Portal</a>
+              <div class="cn-dropdown-divider"></div>
+              <a href="{% url 'logout' %}" style="color:var(--error);"><i class="fa-solid fa-power-off"></i> Sign Out</a>
+            </div>
+          </div>
+        {% else %}
+        <a href="{% url 'login' %}" class="cn-btn cn-btn-ghost">Login</a>
+        <a href="{% url 'signup' %}" class="cn-btn cn-btn-primary">Get Started</a>
+      {% endif %}
+
+      <button class="cn-hamburger" id="cn-hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    </div>
+  </nav>
+
+  <!-- ===== ALERT MESSAGES ===== -->
+  {% if messages %}
+  <div class="cn-messages" role="alert" aria-live="polite">
+    {% for message in messages %}
+    <div class="cn-alert {{ message.tags }}" onclick="this.remove()" title="Click to dismiss">
+      {% if 'success' in message.tags %}<i class="fa-solid fa-circle-check"></i>
+      {% elif 'error' in message.tags or 'danger' in message.tags %}<i class="fa-solid fa-circle-xmark"></i>
+      {% elif 'warning' in message.tags or 'alert' in message.tags %}<i class="fa-solid fa-triangle-exclamation"></i>
+      {% else %}<i class="fa-solid fa-circle-info"></i>{% endif %}
+      <span>{{ message }}</span>
+      <span class="cn-alert-close" aria-label="Close">&times;</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ===== PAGE CONTENT ===== -->
+  {% block content %}{% endblock %}
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="cn-footer">
+    <div class="container" style="max-width:1200px; margin:0 auto; padding: 4rem 1.5rem;">
+      <div class="cn-footer-grid" style="display:grid; grid-template-columns: 2fr 1fr 1fr 1.2fr; gap: 4rem;">
+        <div class="cn-footer-brand">
+          <div class="cn-logo" style="margin-bottom: 1.5rem;">
+            <div class="cn-logo-icon"></div>
+            CampusNest
+          </div>
+          <p style="color:var(--on-surface-muted); line-height: 1.6; font-size: 0.9375rem;">
+            Elevating the standard of campus living with intelligent, transparent, and beautiful management tools for the modern era.
+          </p>
+        </div>
+        <div>
+          <h4 style="margin-bottom: 1.5rem; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--on-bg);">Platform</h4>
+          <ul style="display:flex; flex-direction:column; gap: 0.75rem; color: var(--on-surface-muted); font-size: 0.9375rem;">
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li><a href="{% url 'room_allocation' %}">Room Finder</a></li>
+            <li><a href="{% url 'payment' %}">Fee Portal</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="margin-bottom: 1.5rem; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--on-bg);">Support</h4>
+          <ul style="display:flex; flex-direction:column; gap: 0.75rem; color: var(--on-surface-muted); font-size: 0.9375rem;">
+            <li><a href="{% url 'about' %}">Our Story</a></li>
+            <li><a href="{% url 'complaint_maintenance' %}">Resolution Center</a></li>
+            <li><a href="#">Help Desk</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="margin-bottom: 1.5rem; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--on-bg);">Contact</h4>
+          <p style="color:var(--on-surface-muted); font-size: 0.9rem; margin-bottom: 1rem;">Have questions? Reach out to our technical team.</p>
+          <a href="mailto:support@campusnest.com" class="cn-btn cn-btn-ghost" style="width:100%; border-radius: var(--radius-sm);">Email Support</a>
+        </div>
+      </div>
+      <div class="cn-footer-bottom" style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--outline); display:flex; justify-content: space-between; align-items: center; color: var(--on-surface-faint); font-size: 0.875rem;">
+        <p>&copy; 2026 CampusNest Cloud. Engineered for reliability.</p>
+        <div style="display:flex; gap: 1.5rem;">
+          <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+          <a href="#"><i class="fa-brands fa-github"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script>
+    /**
+     * DropdownManager — Professional Click-to-Toggle System
+     * Handles universal clicks, multi-instance management, and outside-clicks.
+     */
+    class DropdownManager {
+      constructor() {
+        this.dropdowns = document.querySelectorAll('.cn-dropdown');
+        this.init();
+      }
+
+      init() {
+        this.dropdowns.forEach(dropdown => {
+          const toggle = dropdown.querySelector('a, button');
+          const menu = dropdown.querySelector('.cn-dropdown-menu');
+          
+          if (!toggle || !menu) return;
+
+          toggle.addEventListener('click', (e) => {
+            // Only prevent default for links
+            if (toggle.tagName.toLowerCase() === 'a') {
+              e.preventDefault();
+            }
+            
+            const isOpen = menu.classList.contains('active');
+            
+            // Close all others first
+            this.closeAll();
+            
+            if (!isOpen) {
+              menu.classList.add('active');
+              dropdown.classList.add('active');
+            }
+          });
+        });
+
+        // Close on outside click
+        document.addEventListener('click', (e) => {
+          if (!e.target.closest('.cn-dropdown')) {
+            this.closeAll();
+          }
+        });
+      }
+
+      closeAll() {
+        document.querySelectorAll('.cn-dropdown-menu').forEach(m => m.classList.remove('active'));
+        document.querySelectorAll('.cn-dropdown').forEach(d => d.classList.remove('active'));
+      }
+    }
+
+    // Navbar Scroll & UI Logic
+    const navbar = document.getElementById('cn-navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 10);
+    });
+
+    // Mobile hamburger toggle — Drawer Logic
+    const hamburger = document.getElementById('cn-hamburger');
+    const navLinks = document.getElementById('cn-nav-links');
+    if (hamburger) {
+      hamburger.addEventListener('click', () => {
+        const isOpen = navLinks.classList.toggle('open');
+        hamburger.setAttribute('aria-expanded', isOpen);
+      });
+    }
+
+    // Auto-dismiss alerts
+    setTimeout(() => {
+      document.querySelectorAll('.cn-alert').forEach(a => {
+        a.style.transition = 'opacity 0.4s';
+        a.style.opacity = '0';
+        setTimeout(() => a.remove(), 400);
+      });
+    }, 5000);
+
+    // Initializer
+    document.addEventListener('DOMContentLoaded', () => {
+      new DropdownManager();
+    });
+
+    // Theme Toggle High-Performance Logic
+    const themeBtn = document.getElementById('cn-theme-toggle');
+    const updateThemeIcon = (theme) => {
+      const icon = themeBtn.querySelector('i');
+      icon.className = theme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    };
+    
+    updateThemeIcon(document.documentElement.getAttribute('data-theme') || 'dark');
+
+    themeBtn.addEventListener('click', () => {
+      let activeTheme = document.documentElement.getAttribute('data-theme');
+      let newTheme = activeTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('cn-theme', newTheme);
+      updateThemeIcon(newTheme);
+    });
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

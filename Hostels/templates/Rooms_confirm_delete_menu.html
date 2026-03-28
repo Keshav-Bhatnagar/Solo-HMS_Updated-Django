@@ -1,0 +1,33 @@
+{% extends 'Rooms_base.html' %}
+{% load static %}
+
+{% block title %}Confirm Deletion | CampusNest{% endblock %}
+
+{% block content %}
+<div class="cn-auth-container" style="min-height: calc(100vh - 80px); display:flex; align-items:center; justify-content:center; padding: 4rem 1.5rem;">
+    <div class="cn-auth-card" style="width: 100%; max-width: 450px; background: var(--surface); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); padding: 3rem; text-align:center; box-shadow: var(--shadow-card); position:relative; overflow:hidden;">
+        
+        <!-- Decoration Error -->
+        <div style="position:absolute; top:-50px; right:-50px; width:150px; height:150px; background:var(--error); filter:blur(80px); border-radius:50%; opacity:0.15; pointer-events:none;"></div>
+        
+        <div style="width:72px; height:72px; border-radius:50%; background:rgba(255,180,171,0.15); border:1px solid rgba(255,180,171,0.3); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem;">
+            <i class="fa-solid fa-trash-can" style="font-size:2rem; color:var(--error);"></i>
+        </div>
+
+        <h1 style="font-size: 1.5rem; font-weight: 900; color: var(--on-bg); margin-bottom: 0.75rem;">Delete Mess Menu Item?</h1>
+        <p style="color: var(--on-surface-muted); font-size: 0.9375rem; margin-bottom: 2rem; line-height:1.5;">
+            Are you sure you want to delete <strong style="color:var(--primary);">{{ menu_item.meal_type }}</strong> on <strong style="color:var(--on-bg);">{{ menu_item.day }}</strong>?
+        </p>
+
+        <form method="POST" style="display:flex; flex-direction:column; gap:1rem;">
+            {% csrf_token %}
+            <button type="submit" class="cn-btn cn-btn-primary" style="justify-content:center; background:var(--error); padding:1rem;">
+                <i class="fa-solid fa-trash" style="margin-right:8px;"></i> Yes, Delete Item
+            </button>
+            <a href="{% url 'admin_dashboard' %}?tab=mess" class="cn-btn cn-btn-ghost" style="justify-content:center; padding:1rem; border:1px solid var(--outline-variant);">
+                No, Keep It
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

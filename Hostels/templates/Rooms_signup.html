@@ -1,0 +1,282 @@
+{% extends 'Rooms_base.html' %}
+{% load static %}
+
+{% block title %}Membership – Elite Campus Enrollment{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing_3d.css' %}?v=1.4">
+<style>
+    /* Final Elite Reset (Clean-Code Restoration) */
+    html, body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        background: #fff !important;
+        font-family: 'Inter', system-ui, sans-serif;
+        overflow-x: hidden;
+    }
+
+    /* Navbar Glassmorphism */
+    .cn-navbar {
+        background: rgba(255, 255, 255, 0.72) !important;
+        backdrop-filter: blur(16px) saturate(180%);
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+    }
+
+    .elite-portal-main {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        width: 100%;
+        min-height: 100vh;
+        padding-top: 72px; /* Navbar height */
+    }
+
+    /* Mural side */
+    .portal-mural {
+        background: #fdfcfb;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 6rem;
+    }
+
+    /* Architectural Arch */
+    .arch-backdrop {
+        position: absolute;
+        top: 20%; left: 10%;
+        width: 110%; height: 110%;
+        background: #fff5eb;
+        border-radius: 50%;
+        z-index: 1;
+        opacity: 0.6;
+    }
+
+    /* 3D Character - Fixed Overlap (Bottom-Right Anchor) */
+    .mural-asset {
+        position: absolute;
+        bottom: 0;
+        right: -8vw;
+        height: 85%;
+        width: auto;
+        z-index: 10;
+        pointer-events: none;
+        filter: drop-shadow(0 20px 50px rgba(0,0,0,0.05));
+    }
+
+    .mural-content-layer {
+        position: relative;
+        z-index: 100;
+        max-width: 540px;
+    }
+
+    /* Form Side with Scroll Protocal */
+    .portal-console {
+        background: #fff;
+        border-left: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2.5rem;
+        overflow-y: auto;
+    }
+
+    .console-card {
+        width: 100%;
+        max-width: 500px;
+        padding-bottom: 2rem;
+    }
+
+    /* Input Modern UI */
+    .portal-input-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+    @media (max-width: 600px) {
+        .portal-input-group { grid-template-columns: 1fr; }
+    }
+
+    .portal-input {
+        width: 100%;
+        padding: 0.95rem 1.25rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        background: #fcfdfe;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        color: #1e293b;
+    }
+    .portal-input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        background: #fff;
+    }
+
+    .social-sync-row {
+        display: flex;
+        justify-content: center;
+        gap: 1.25rem;
+        margin-top: 1.5rem;
+    }
+    .social-sync-btn {
+        width: 52px; height: 52px;
+        border-radius: 50%;
+        border: 1px solid #e2e8f0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.25rem; color: #475569;
+        background: #fff; cursor: pointer; transition: 0.3s;
+    }
+    .social-sync-btn:hover {
+        transform: translateY(-4px);
+        border-color: #2563eb; color: #2563eb;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    @media (max-width: 1100px) {
+        .elite-portal-main { grid-template-columns: 1fr; height: auto; }
+        .portal-mural { min-height: 40vh; padding: 4rem 2rem; }
+        .portal-console { padding: 3rem 2rem; border-left: none; }
+        .mural-asset { height: 75%; right: -2vw; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="elite-portal-main">
+    <section class="portal-mural">
+        <div class="arch-backdrop"></div>
+        <img src="{% static 'images/elite_campus_character.png' %}" class="mural-asset" alt="Access Guide">
+        
+        <div class="mural-content-layer">
+            <div style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.6rem 1.4rem; background:rgba(255,255,255,0.8); border:1px solid #e2e8f0; border-radius:100px; color:#2563eb; font-weight:800; font-size:0.7rem; margin-bottom: 2.5rem; letter-spacing: 0.1em; backdrop-filter: blur(8px);">
+                <i class="fa-solid fa-file-signature"></i> INSTITUTIONAL MEMBERSHIP
+            </div>
+            
+            <h1 style="font-size: clamp(2.5rem, 4vw, 3.5rem); font-weight: 900; line-height: 1; color: #1e293b; margin-bottom: 1.5rem; letter-spacing: -0.04em;">
+                Reserve Your <br>
+                <span style="color:#2563eb;">Future Sanctuary.</span>
+            </h1>
+            
+            <p style="font-size: 1.1rem; color: #64748b; line-height: 1.6; font-weight: 500; max-width: 440px;">
+                Secure your position in the campus topology with a world-class identity profile and node allocation.
+            </p>
+            
+            <ul style="list-style: none; padding: 0; display: grid; gap: 1rem; margin-top: 3rem;">
+                <li style="display: flex; gap: 1rem; align-items: center; color: #475569; font-weight: 600;">
+                    <i class="fa-solid fa-check" style="color:#10b981;"></i> Precision Node Allocation
+                </li>
+                <li style="display: flex; gap: 1rem; align-items: center; color: #475569; font-weight: 600;">
+                    <i class="fa-solid fa-check" style="color:#10b981;"></i> Institutional Social Mesh
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="portal-console">
+        <div class="console-card">
+            <div style="text-align: center; margin-bottom: 2.5rem;">
+                <h2 style="font-size: 2rem; font-weight: 900; color: #1e293b; margin-bottom: 0.5rem; letter-spacing: -0.03em;">Apply for Access</h2>
+                <p style="color: #64748b; font-size: 0.95rem; font-weight: 500;">Initialize your elite identity profile.</p>
+            </div>
+
+            {% if messages %}
+            <div style="margin-bottom: 1.5rem;">
+                {% for message in messages %}
+                <div style="padding: 0.9rem 1.25rem; border-radius: 12px; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 600;
+                    {% if message.tags == 'error' %}background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;
+                    {% elif message.tags == 'success' %}background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;
+                    {% else %}background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form action="{% url 'signup' %}" method="POST" novalidate id="signup-form">
+                {% csrf_token %}
+                
+                <div class="portal-input-group">
+                    <div>
+                        <label style="display: block; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.1em; margin-bottom: 0.5rem;">First Name</label>
+                        <input type="text" name="first_name" class="portal-input" placeholder="Resident" required value="{{ request.POST.first_name|default:'' }}">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Last Name</label>
+                        <input type="text" name="last_name" class="portal-input" placeholder="Member" required value="{{ request.POST.last_name|default:'' }}">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.25rem;">
+                    <label style="display: block; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Institutional Email</label>
+                    <input type="email" name="email" class="portal-input" placeholder="name@college.edu" required value="{{ request.POST.email|default:'' }}">
+                </div>
+
+                <div class="portal-input-group" style="margin-bottom: 1.25rem;">
+                    <div>
+                        <label style="display: block; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Roll Number</label>
+                        <input type="text" name="roll_number" class="portal-input" placeholder="e.g. 22CS101" required value="{{ request.POST.roll_number|default:'' }}">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Contact Number</label>
+                        <input type="tel" name="contact_number" class="portal-input" placeholder="+91 98765 43210" required value="{{ request.POST.contact_number|default:'' }}">
+                    </div>
+                </div>
+
+                <div class="portal-input-group" style="margin-bottom: 1.25rem;">
+                    <div>
+                        <label style="display: block; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Secure Key</label>
+                        <input type="password" name="password1" class="portal-input" placeholder="Min 8 chars, A-z, 0-9, !@#" required>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Confirm Key</label>
+                        <input type="password" name="password2" class="portal-input" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 2rem; display: flex; align-items: flex-start; gap: 0.75rem;">
+                    <input type="checkbox" name="terms" id="terms" required style="margin-top: 3px; accent-color: #2563eb; width: 16px; height: 16px;">
+                    <label for="terms" style="font-size: 0.8rem; color: #64748b; line-height: 1.4;">I agree to the <a href="{% url 'terms_conditions' %}" style="color: #2563eb; font-weight: 700; text-decoration: none;">Terms & Conditions</a> and institutional policies.</label>
+                </div>
+
+                <button type="submit" class="cn-btn cn-btn-primary" style="width: 100%; padding: 1.3rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; border-radius: 14px; box-shadow: 0 10px 40px -10px rgba(37, 99, 235, 0.45);">
+                    Request Membership <i class="fa-solid fa-plus-circle" style="margin-left: 0.5rem;"></i>
+                </button>
+            </form>
+
+            <div style="margin: 2rem 0; text-align: center; position: relative;">
+                <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #f1f5f9; z-index: 1;"></div>
+                <span style="position: relative; z-index: 2; background: #fff; padding: 0 1rem; color: #94a3b8; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">Synchronize Social Identity</span>
+            </div>
+
+            <div class="social-sync-row">
+                <div class="social-sync-btn"><i class="fa-brands fa-google"></i></div>
+                <div class="social-sync-btn"><i class="fa-brands fa-github"></i></div>
+                <div class="social-sync-btn"><i class="fa-brands fa-apple"></i></div>
+            </div>
+
+            <p style="margin-top: 3.5rem; text-align: center; font-size: 0.95rem; color: #64748b; font-weight: 500;">
+                Already linked? <a href="{% url 'login' %}" style="color:#2563eb; font-weight: 900; text-decoration: none; margin-left: 5px;">Return to Access</a>
+            </p>
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tl = gsap.timeline();
+        gsap.set('.arch-backdrop, .mural-asset, .mural-content-layer > *, .console-card', { opacity: 0 });
+
+        tl.to('.arch-backdrop', { opacity: 0.6, duration: 1.5, ease: "power4.out" });
+        tl.fromTo('.mural-asset', { y: 100, opacity: 0 }, { y: 0, opacity: 1, duration: 1.5, ease: "power3.out" }, "-=1.2");
+        tl.to('.mural-content-layer > *', { opacity: 1, y: 0, stagger: 0.12, duration: 0.8 }, "-=1.0");
+        tl.fromTo('.console-card', { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: "expo.out" }, "-=0.6");
+    });
+</script>
+{% endblock %}

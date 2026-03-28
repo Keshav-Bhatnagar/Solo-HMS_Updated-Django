@@ -1,0 +1,194 @@
+{% extends 'Rooms_base.html' %}
+{% load static %}
+
+{% block title %}Complaints & Maintenance – CampusNest{% endblock %}
+
+{% block extra_css %}
+<style>
+  .cn-support-page {
+    max-width: 1200px;
+    margin: 4rem auto 6rem;
+    padding: 0 1.5rem;
+  }
+  .cn-support-header { text-align: center; margin-bottom: 4rem; }
+  .cn-support-title { font-size: 2.5rem; font-weight: 900; margin-bottom: 0.5rem; }
+  .cn-support-sub { color: var(--on-surface-muted); font-size: 1.125rem; }
+
+  .cn-support-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-bottom: 4rem; }
+  @media (max-width: 900px) { .cn-support-grid { grid-template-columns: 1fr; } }
+
+  .cn-form-card {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-xl);
+    padding: 3rem;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+  }
+  .cn-form-card::before {
+    content: ''; position: absolute; top:0; left:0; width:100%; height:4px;
+    background: var(--primary);
+  }
+  .cn-form-card h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; color: var(--on-bg); }
+  .cn-form-card h3 i { color: var(--primary); }
+
+  .cn-input-group { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .cn-input-group label { font-size: 0.875rem; font-weight: 600; color: var(--on-surface-muted); margin-bottom: 0.25rem; }
+  .cn-input-group input, .cn-input-group select, .cn-input-group textarea {
+    width: 100%; padding: 0.75rem 1rem; background: var(--bg-subtle); border: 1px solid var(--outline);
+    border-radius: var(--radius-md); color: var(--on-bg); font-family: var(--font-body); transition: var(--transition);
+  }
+  .cn-input-group input:focus, .cn-input-group select:focus, .cn-input-group textarea:focus {
+    border-color: var(--primary); outline: none; box-shadow: 0 0 0 2px var(--primary-container);
+  }
+
+  /* History Section */
+  .cn-history-title { font-size: 1.75rem; font-weight: 800; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; }
+  .cn-history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+  
+  .cn-request-card {
+    background: var(--surface); border: 1px solid var(--outline); border-radius: var(--radius-lg);
+    padding: 1.5rem; transition: var(--transition); box-shadow: var(--shadow-sm);
+  }
+  .cn-request-card:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: var(--shadow-md); }
+  
+  .cn-req-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+  .cn-req-type { font-size: 1rem; font-weight: 800; color: var(--on-bg); }
+  .cn-req-cat { font-size: 0.8125rem; color: var(--on-surface-muted); margin-top: 0.25rem; }
+  
+  .cn-status-badge { padding: 0.25rem 0.625rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+  .cn-status-pending { background: var(--primary-container); color: var(--primary); border: 1px solid var(--primary); }
+  .cn-status-resolved { background: #d1fae5; color: #065f46; border: 1px solid #c1e8d4; }
+
+  .cn-req-details { font-size: 0.9375rem; color: var(--on-bg); line-height: 1.5; margin-bottom: 1rem; }
+  .cn-req-date { font-size: 0.75rem; color: var(--on-surface-faint); display: flex; align-items: center; gap: 0.5rem; }
+
+  /* Generic Django Form Restyling */
+  .django-form p { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .django-form label { font-size: 0.875rem; font-weight: 600; color: var(--on-surface-muted); margin-bottom: 0.25rem; }
+  .django-form input, .django-form select, .django-form textarea {
+    width: 100%; padding: 0.75rem 1rem; background: var(--bg-subtle); border: 1px solid var(--outline);
+    border-radius: var(--radius-md); color: var(--on-bg); font-family: var(--font-body); transition: var(--transition);
+  }
+  .django-form input:focus, .django-form select:focus, .django-form textarea:focus {
+    border-color: var(--primary); outline: none; box-shadow: 0 0 0 2px var(--primary-container);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="cn-page">
+  <div class="cn-support-page">
+    
+    <div class="cn-support-header">
+      <h1 class="cn-support-title">Support & Maintenance</h1>
+      <p class="cn-support-sub">Submit requests and track resolution status in real-time.</p>
+    </div>
+
+    <div class="cn-support-grid">
+      <!-- Maintenance Form -->
+      <div class="cn-form-card">
+        <h3><i class="fa-solid fa-screwdriver-wrench"></i> Hardware Maintenance</h3>
+        <form method="POST" action="{% url 'complaint_maintenance' %}">
+          {% csrf_token %}
+          <input type="hidden" name="request_type" value="maintenance">
+
+          <div class="cn-input-group">
+            <label>Your Name</label>
+            <input type="text" name="name" value="{{ user.get_full_name }}" required readonly style="opacity:0.7;">
+          </div>
+          
+          <div class="cn-input-group">
+            <label>Room Number</label>
+            <input type="text" name="room_number" placeholder="E.g. 101" required>
+          </div>
+
+          <div class="cn-input-group">
+            <label>Maintenance Type</label>
+            <select name="category" required>
+              <option value="Plumbing">Plumbing / Water</option>
+              <option value="Electricity">Electrical / Wiring</option>
+              <option value="Furniture">Furniture / Fixtures</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="cn-input-group">
+            <label>Issue Details</label>
+            <textarea name="details" rows="5" placeholder="Please describe the issue in detail..." required></textarea>
+          </div>
+
+          <button type="submit" class="cn-btn cn-btn-primary" style="width:100%;">
+            <i class="fa-solid fa-paper-plane"></i> Submit Maintenance Request
+          </button>
+        </form>
+      </div>
+
+      <!-- General Complaint Form -->
+      <div class="cn-form-card">
+        <h3><i class="fa-solid fa-bullhorn"></i> General Complaint</h3>
+        <p style="color:var(--on-surface-muted); font-size:0.875rem; margin-bottom:2rem;">For administrative, behavioral, or facilities complaints that do not require physical repairs.</p>
+        
+        <form class="django-form" method="POST" action="{% url 'complaint_maintenance' %}">
+          {% csrf_token %}
+          {{ form.as_p }}
+          
+          <button type="submit" class="cn-btn cn-btn-ghost" style="width:100%; border:1px solid var(--primary); margin-top:1rem;">
+            <i class="fa-solid fa-envelope-open-text"></i> File Complaint
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Ticket History -->
+    <div>
+      <h2 class="cn-history-title"><i class="fa-solid fa-clock-rotate-left"></i> Your Support Tickets</h2>
+      
+      <div class="cn-history-grid">
+        {% for req in requests %}
+        <div class="cn-request-card">
+          <div class="cn-req-header">
+            <div>
+              <div class="cn-req-type">{{ req.get_request_type_display|default:"Unknown Request" }}</div>
+              <div class="cn-req-cat"><i class="fa-solid fa-tag"></i> {{ req.category }}</div>
+            </div>
+            
+            {% if req.status|lower == 'resolved' %}
+              <div class="cn-status-badge cn-status-resolved">Resolved</div>
+            {% else %}
+              <div class="cn-status-badge cn-status-pending">{{ req.status|title }}</div>
+            {% endif %}
+          </div>
+          
+          <div class="cn-req-details">
+            "{{ req.details }}"
+          </div>
+          
+          <div class="cn-req-date">
+            <i class="fa-regular fa-calendar"></i> {{ req.created_at|date:"M d, Y • H:i" }}
+          </div>
+        </div>
+        {% empty %}
+        <div style="grid-column: 1 / -1; text-align:center; padding:4rem 2rem; background:var(--surface-low); border-radius:var(--radius-lg); border:1px dashed var(--outline-variant);">
+          <i class="fa-solid fa-check-double" style="font-size:3rem; color:var(--success); opacity:0.5; margin-bottom:1rem;"></i>
+          <p style="color:var(--on-surface-muted); font-size:1.125rem;">You have no active or past requests.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  // Add premium input styles to Django rendered form
+  document.addEventListener('DOMContentLoaded', () => {
+    const djInputs = document.querySelectorAll('.django-form input, .django-form select, .django-form textarea');
+    djInputs.forEach(el => {
+      if(!el.placeholder && el.tagName === 'INPUT') el.placeholder = 'Enter details...';
+      if(!el.placeholder && el.tagName === 'TEXTAREA') el.placeholder = 'Describe your complaint...';
+    });
+  });
+</script>
+{% endblock %}

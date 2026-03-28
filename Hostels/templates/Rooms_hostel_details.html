@@ -1,0 +1,310 @@
+{% extends 'Rooms_base.html' %}
+{% load static %}
+
+{% block title %}Hostels – CampusNest{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Premium Hostel Details Styling */
+  .cn-hostels-hero {
+    text-align: center;
+    padding: 6rem 2rem 4rem;
+  }
+  .cn-hostels-title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    margin-bottom: 1rem;
+    color: var(--on-bg);
+  }
+  .cn-hostels-subtitle {
+    font-size: 1.125rem;
+    color: var(--on-surface-muted);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* Grid Setup */
+  .cn-hostel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 2.5rem;
+    padding: 0 2rem 6rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* Professional Card */
+  .cn-hostel-card {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    position: relative;
+    transition: all 0.4s var(--transition);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+  }
+  .cn-hostel-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary);
+  }
+  
+  .cn-hostel-img-wrap {
+    height: 220px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cn-hostel-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+  .cn-hostel-card:hover .cn-hostel-img-wrap img {
+    transform: scale(1.08);
+  }
+  .cn-hostel-badge {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    color: var(--primary);
+    padding: 0.375rem 0.875rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .cn-hostel-body {
+    padding: 2rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .cn-hostel-name {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--on-bg);
+    margin-bottom: 0.5rem;
+  }
+  .cn-hostel-floors {
+    font-size: 0.875rem;
+    color: var(--on-surface-faint);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Features List */
+  .cn-feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    flex: 1;
+  }
+  .cn-feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--on-surface-muted);
+  }
+  .cn-feature-item i {
+    color: var(--primary);
+    margin-top: 3px;
+    font-size: 0.875rem;
+  }
+
+  /* Actions */
+  .cn-hostel-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: auto;
+  }
+  .cn-btn-explore {
+    flex: 1;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    background: var(--bg-subtle);
+    color: var(--on-surface);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--outline);
+    transition: all var(--transition);
+    cursor: pointer;
+  }
+  .cn-btn-explore:hover {
+    background: var(--surface-raised);
+    border-color: var(--on-surface-muted);
+  }
+
+  /* Custom Slide Panel Architecture */
+  .cn-panel-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+    z-index: 2000; opacity: 0; visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s;
+  }
+  .cn-panel-overlay.active { opacity: 1; visibility: visible; }
+  
+  .cn-side-panel {
+    position: fixed; top: 0; right: -100%; width: 100%; max-width: 550px; height: 100vh;
+    background: var(--surface); border-left: 1px solid var(--outline);
+    z-index: 2001; display: flex; flex-direction: column;
+    box-shadow: -20px 0 50px rgba(0,0,0,0.1);
+    transition: right 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    overflow: hidden;
+  }
+  .cn-side-panel.active { right: 0; }
+  
+  .cn-panel-header {
+    padding: 2rem; display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--glass-border); background: var(--surface);
+  }
+  .cn-panel-title { font-size: 1.5rem; font-weight: 800; color: var(--on-bg); margin: 0; }
+  .cn-panel-close {
+    background: rgba(255,255,255,0.05); border: none; width: 40px; height: 40px;
+    border-radius: 50%; color: var(--on-surface-muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: all var(--transition);
+  }
+  .cn-panel-close:hover { background: var(--error); color: #fff; transform: rotate(90deg); }
+  
+  .cn-panel-body { flex: 1; overflow-y: auto; padding: 0 0 2rem 0; }
+  .cn-panel-img { width: 100%; height: 280px; object-fit: cover; }
+  .cn-panel-content { padding: 2rem; }
+  .cn-panel-content h6 {
+    font-size: 0.8125rem; font-weight: 800; color: var(--primary);
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem;
+  }
+  
+  .cn-panel-footer {
+    padding: 1.5rem 2rem; border-top: 1px solid var(--glass-border);
+    background: var(--surface); display: flex; justify-content: space-between;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="cn-page">
+
+  <section class="cn-hostels-hero">
+    <h1 class="cn-hostels-title">Our Premium Residences</h1>
+    <p class="cn-hostels-subtitle">Discover your perfect student home, engineered for comfort and focus.</p>
+  </section>
+
+  <div class="cn-hostel-grid">
+    {% for hostel in hostels %}
+    <div class="cn-hostel-card">
+      <div class="cn-hostel-img-wrap">
+        <img src="{% static 'images/home4.jpg' %}" alt="{{ hostel.name }}">
+        <div class="cn-hostel-badge"><i class="fa-solid fa-star"></i> Top Rated</div>
+      </div>
+      
+      <div class="cn-hostel-body">
+        <h2 class="cn-hostel-name">{{ hostel.name }}</h2>
+        <div class="cn-hostel-floors">
+          <i class="fa-solid fa-layer-group"></i> {{ hostel.total_floors }} Floors Available
+        </div>
+        
+        <ul class="cn-feature-list">
+          {% for feature in hostel.feature_list|slice:":3" %}
+          <li class="cn-feature-item">
+            <i class="fa-solid fa-check"></i>
+            <span>{{ feature }}</span>
+          </li>
+          {% empty %}
+          <li class="cn-feature-item"><i class="fa-solid fa-check"></i><span>High-Speed Wi-Fi</span></li>
+          <li class="cn-feature-item"><i class="fa-solid fa-check"></i><span>24/7 Security & CCTV</span></li>
+          <li class="cn-feature-item"><i class="fa-solid fa-check"></i><span>AC & Non-AC Rooms</span></li>
+          {% endfor %}
+        </ul>
+
+        <div class="cn-hostel-actions">
+          <button class="cn-btn-explore" onclick="openPanel('hostelPanel{{ hostel.id }}')">
+            <i class="fa-solid fa-expand"></i> Details
+          </button>
+          <a href="{% url 'room_allocation' %}" class="cn-btn cn-btn-primary" style="flex:1; padding:0.75rem 1rem;">
+            Book Room
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Custom Side Panels -->
+  <div class="cn-panel-overlay" id="panelOverlay" onclick="closeAllPanels()"></div>
+
+  {% for hostel in hostels %}
+  <div class="cn-side-panel" id="hostelPanel{{ hostel.id }}">
+    <div class="cn-panel-header">
+      <h5 class="cn-panel-title">{{ hostel.name }}</h5>
+      <button class="cn-panel-close" onclick="closePanel('hostelPanel{{ hostel.id }}')">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    
+    <div class="cn-panel-body">
+      <img src="{% static 'images/home4.jpg' %}" alt="{{ hostel.name }}" class="cn-panel-img">
+      
+      <div class="cn-panel-content">
+        <h6>Premium Features Included</h6>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+          {% for feature in hostel.feature_list %}
+          <div class="cn-feature-item">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>{{ feature }}</span>
+          </div>
+          {% empty %}
+            <div class="cn-feature-item"><i class="fa-solid fa-circle-check"></i><span>High-Speed Wi-Fi everywhere</span></div>
+            <div class="cn-feature-item"><i class="fa-solid fa-circle-check"></i><span>24/7 Security & CCTV Monitoring</span></div>
+            <div class="cn-feature-item"><i class="fa-solid fa-circle-check"></i><span>AC & Non-AC Configurations</span></div>
+            <div class="cn-feature-item"><i class="fa-solid fa-circle-check"></i><span>Gym & Recreation Area Access</span></div>
+            <div class="cn-feature-item"><i class="fa-solid fa-circle-check"></i><span>Dedicated Study Halls</span></div>
+            <div class="cn-feature-item"><i class="fa-solid fa-circle-check"></i><span>Daily Room Cleaning</span></div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="cn-panel-footer">
+      <button class="cn-btn cn-btn-ghost" onclick="closePanel('hostelPanel{{ hostel.id }}')">Close</button>
+      <a href="{% url 'room_allocation' %}" class="cn-btn cn-btn-primary"><i class="fa-solid fa-rocket"></i> Proceed to Booking</a>
+    </div>
+  </div>
+  {% endfor %}
+
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function openPanel(panelId) {
+    document.getElementById('panelOverlay').classList.add('active');
+    document.getElementById(panelId).classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+  }
+
+  function closePanel(panelId) {
+    document.getElementById('panelOverlay').classList.remove('active');
+    document.getElementById(panelId).classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+
+  function closeAllPanels() {
+    document.getElementById('panelOverlay').classList.remove('active');
+    document.querySelectorAll('.cn-side-panel').forEach(panel => {
+      panel.classList.remove('active');
+    });
+    document.body.style.overflow = 'auto';
+  }
+</script>
+{% endblock %}

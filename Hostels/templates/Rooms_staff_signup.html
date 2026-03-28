@@ -1,0 +1,89 @@
+{% extends 'Rooms_base.html' %}
+{% load static %}
+
+{% block title %}Register Staff | CampusNest{% endblock %}
+
+{% block content %}
+<div class="cn-auth-container" style="min-height: calc(100vh - 80px); display:flex; align-items:center; justify-content:center; padding: 4rem 1.5rem;">
+    <div class="cn-auth-card" style="width: 100%; max-width: 500px; background: var(--surface); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); padding: 3rem; box-shadow: var(--shadow-card); position:relative; overflow:hidden;">
+        
+        <!-- Decoration -->
+        <div style="position:absolute; top:-50px; right:-50px; width:150px; height:150px; background:var(--primary); filter:blur(80px); border-radius:50%; opacity:0.3; pointer-events:none;"></div>
+
+        <div class="cn-auth-header" style="text-align:center; margin-bottom: 2.5rem;">
+            <div style="width:64px; height:64px; border-radius:50%; background:var(--surface-low); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem;">
+                <i class="fa-solid fa-user-shield" style="font-size:1.75rem; color:var(--primary);"></i>
+            </div>
+            <h1 style="font-size: 1.75rem; font-weight: 900; color: var(--on-bg); margin-bottom: 0.5rem;">Staff Registration</h1>
+            <p style="color: var(--on-surface-muted); font-size: 0.9375rem;">Create a new administrative account.</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="cn-alert cn-alert-{{ message.tags }}" style="padding:1rem; border-radius:var(--radius-md); background:var(--surface-low); border-left:4px solid var(--primary); margin-bottom:1.5rem;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" class="cn-auth-form" style="display:flex; flex-direction:column; gap:1.25rem;">
+            {% csrf_token %}
+            
+            <style>
+              .cn-auth-form label { font-size: 0.8125rem; font-weight: 700; color: var(--on-surface-faint); text-transform: uppercase; letter-spacing: 0.05em; display:block; margin-bottom:0.5rem; }
+              .cn-auth-form input { width: 100%; padding: 0.875rem 1rem; background: var(--bg-deep); border: 1px solid var(--outline-variant); border-radius: var(--radius-md); color: var(--on-bg); font-family: var(--font); transition: all var(--transition); }
+              .cn-auth-form input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(124,77,255,0.2); }
+              .cn-auth-form .helptext { display:none; }
+              .cn-auth-form ul.errorlist { color: var(--error); font-size: 0.8125rem; margin-top: 0.25rem; padding-left:0; list-style:none; }
+            </style>
+
+            <div style="display:flex; gap:1rem;">
+              <div style="flex:1;">
+                  {{ form.first_name.label_tag }}
+                  {{ form.first_name }}
+              </div>
+              <div style="flex:1;">
+                  {{ form.last_name.label_tag }}
+                  {{ form.last_name }}
+              </div>
+            </div>
+
+            <div>
+                {{ form.email.label_tag }}
+                {{ form.email }}
+            </div>
+            
+            <div>
+                {{ form.roll_number.label_tag }}
+                {{ form.roll_number }}
+            </div>
+
+            <div>
+                {{ form.password1.label_tag }}
+                {{ form.password1 }}
+            </div>
+
+            <div>
+                {{ form.password2.label_tag }}
+                {{ form.password2 }}
+            </div>
+            
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger" style="color:var(--error); font-size:0.875rem;">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="cn-btn cn-btn-primary" style="width: 100%; justify-content:center; padding:1rem; margin-top:1rem; font-size:1rem;">
+                <i class="fa-solid fa-plus" style="margin-right:8px;"></i> Create Staff Account
+            </button>
+        </form>
+
+        <div style="text-align:center; margin-top: 2rem;">
+            <a href="{% url 'admin_dashboard' %}" style="color: var(--primary); font-size: 0.875rem; font-weight: 700; text-decoration: none;">
+                <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
