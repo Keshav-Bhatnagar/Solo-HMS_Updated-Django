@@ -23,6 +23,7 @@ urlpatterns = [
     path('payment/', views.payment_page, name='payment'),
     path('payment/create-intent/', views.create_payment_intent, name='create_payment_intent'),
     path('payment/success/<str:transaction_id>/', views.payment_success, name='payment_success'),
+    path('payment/invoice/<str:transaction_id>/', views.download_invoice, name='download_invoice'),
     path('post-allocation/', views.post_allocation, name='post_allocation'),
     path('complaint/', views.complaint_maintenance, name='complaint_maintenance'),
     path('feedback/', views.feedback, name='feedback'),

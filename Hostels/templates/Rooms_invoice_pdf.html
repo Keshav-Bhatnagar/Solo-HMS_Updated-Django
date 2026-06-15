@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @page {
+            size: a4 portrait;
+            margin: 2cm;
+            @frame header_frame {           /* Static Frame */
+                -pdf-frame-content: header_content;
+                left: 50pt; width: 512pt; top: 50pt; height: 40pt;
+            }
+            @frame footer_frame {           /* Another static Frame */
+                -pdf-frame-content: footer_content;
+                left: 50pt; width: 512pt; top: 772pt; height: 20pt;
+            }
+        }
+        body {
+            font-family: Helvetica, sans-serif;
+            color: #333333;
+        }
+        h1 {
+            color: #4F46E5;
+            font-size: 24pt;
+            margin-bottom: 0;
+        }
+        .header-sub {
+            color: #6B7280;
+            font-size: 10pt;
+        }
+        table {
+            width: 100%;
+            margin-top: 30pt;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        th {
+            background-color: #F3F4F6;
+            color: #374151;
+            font-weight: bold;
+        }
+        .total-row td {
+            font-weight: bold;
+            font-size: 14pt;
+            color: #111827;
+            border-bottom: none;
+            border-top: 2px solid #374151;
+        }
+        .status {
+            color: #10B981;
+            font-weight: bold;
+        }
+        .invoice-box {
+            border: 1px solid #E5E7EB;
+            padding: 20px;
+            background-color: #F9FAFB;
+            margin-top: 20pt;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header_content">
+        <h1>CampusNest</h1>
+        <div class="header-sub">Official Digital Receipt</div>
+    </div>
+
+    <div class="invoice-box">
+        <strong>Invoice To:</strong><br>
+        {{ payment.user.get_full_name }}<br>
+        {{ payment.user.email }}<br>
+        Date: {{ payment.payment_date|date:"F d, Y" }}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Transaction ID</th>
+                <th>Amount (INR)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Hostel Allocation Fee (Room: {{ payment.allocation.room.room_number }})</td>
+                <td>{{ payment.transaction_id }}</td>
+                <td>₹{{ payment.amount }}</td>
+            </tr>
+            <tr class="total-row">
+                <td colspan="2" style="text-align: right;">Total Paid:</td>
+                <td>₹{{ payment.amount }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p style="margin-top: 40pt;">
+        <strong>Payment Status:</strong> <span class="status">COMPLETED</span><br>
+        <strong>Payment Method:</strong> Stripe API<br>
+        <br>
+        <em>Thank you for choosing CampusNest. This is a computer-generated receipt and does not require a physical signature.</em>
+    </p>
+
+    <div id="footer_content" style="text-align: center; color: #9CA3AF; font-size: 9pt;">
+        CampusNest &copy; {% now "Y" %} - Next-Generation Hostel Management
+    </div>
+
+</body>
+</html>

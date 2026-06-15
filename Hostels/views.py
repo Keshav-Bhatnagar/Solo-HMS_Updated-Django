@@ -7,7 +7,9 @@ from django.db.models import F, Sum, Count, Avg, Case, When, Value, BooleanField
 from django.utils import timezone
 from django.conf import settings
 from django.core.mail import send_mail
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
@@ -602,6 +604,26 @@ def payment_success(request, transaction_id):
         'payment_gateway': "Stripe API",
         'auth_code': auth_code,
     })
+
+@login_required
+def download_invoice(request, transaction_id):
+    payment = get_object_or_404(FeePayment, transaction_id=transaction_id)
+    if payment.user != request.user and not request.user.is_staff:
+        return HttpResponse("Unauthorized", status=401)
+        
+    template_path = 'Rooms_invoice_pdf.html'
+    context = {'payment': payment}
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="CampusNest_Invoice_{payment.transaction_id}.pdf"'
+    
+    template = get_template(template_path)
+    html = template.render(context)
+    
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
 
 @login_required
 def post_allocation(request):
