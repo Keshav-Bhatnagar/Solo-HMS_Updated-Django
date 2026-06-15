@@ -106,10 +106,22 @@ STRIPE_SECRET_KEY=sk_test_your_key_here
 ```
 
 ### 5. Database Setup & Execution
-Run migrations to build the database schema, then start the asynchronous server:
+Run migrations to build the database schema:
 ```bash
 python manage.py makemigrations
 python manage.py migrate
+```
+
+### 6. Seeding the Database (Optional but Recommended)
+To populate the database with realistic sample data (Events, Marketplace items, Mess Menus, Lost & Found items, and Discussions), run the provided seed scripts:
+```bash
+python seed_connect.py
+python seed_images.py
+python seed_lost_found.py
+```
+
+### 7. Start the Asynchronous Server
+```bash
 python manage.py runserver
 ```
 > **Note:** Because `daphne` is installed, `runserver` automatically serves the ASGI application, enabling WebSockets right out of the box!
