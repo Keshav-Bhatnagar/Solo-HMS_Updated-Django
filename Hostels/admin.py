@@ -1,7 +1,7 @@
 # admin.py
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Hostel, Room, Allocation, StudentProfile,Feedback
+from .models import CustomUser, Hostel, Room, Allocation, StudentProfile,Feedback, LiveAnnouncement
 from django.utils.html import format_html
 
 # Custom User Admin
@@ -83,3 +83,9 @@ class AllocationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Feedback)
+
+@admin.register(LiveAnnouncement)
+class LiveAnnouncementAdmin(admin.ModelAdmin):
+    list_display = ('message', 'is_active', 'created_at')
+    list_filter = ('is_active',)
+    search_fields = ('message',)

@@ -1,8 +1,9 @@
 from django.contrib import admin
-from app2.models import Form
+from app2.models import Form, Club
 
 # Register your models here.
 admin.site.register(Form)
+admin.site.register(Club)
 
 from django.contrib import admin
 from .models import MessMenu

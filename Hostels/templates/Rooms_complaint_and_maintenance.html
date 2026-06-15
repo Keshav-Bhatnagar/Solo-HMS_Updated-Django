@@ -90,7 +90,7 @@
       <!-- Maintenance Form -->
       <div class="cn-form-card">
         <h3><i class="fa-solid fa-screwdriver-wrench"></i> Hardware Maintenance</h3>
-        <form method="POST" action="{% url 'complaint_maintenance' %}">
+        <form method="POST" action="{% url 'complaint_maintenance' %}" enctype="multipart/form-data">
           {% csrf_token %}
           <input type="hidden" name="request_type" value="maintenance">
 
@@ -119,6 +119,11 @@
             <textarea name="details" rows="5" placeholder="Please describe the issue in detail..." required></textarea>
           </div>
 
+          <div class="cn-input-group">
+            <label>Evidence Photo (Optional)</label>
+            <input type="file" name="photo" accept="image/*" style="padding: 0.5rem; cursor: pointer;">
+          </div>
+
           <button type="submit" class="cn-btn cn-btn-primary" style="width:100%;">
             <i class="fa-solid fa-paper-plane"></i> Submit Maintenance Request
           </button>
@@ -130,7 +135,7 @@
         <h3><i class="fa-solid fa-bullhorn"></i> General Complaint</h3>
         <p style="color:var(--on-surface-muted); font-size:0.875rem; margin-bottom:2rem;">For administrative, behavioral, or facilities complaints that do not require physical repairs.</p>
         
-        <form class="django-form" method="POST" action="{% url 'complaint_maintenance' %}">
+        <form class="django-form" method="POST" action="{% url 'complaint_maintenance' %}" enctype="multipart/form-data">
           {% csrf_token %}
           {{ form.as_p }}
           
@@ -164,6 +169,11 @@
           <div class="cn-req-details">
             "{{ req.details }}"
           </div>
+          {% if req.photo %}
+          <div style="margin-bottom: 1rem;">
+            <a href="{{ req.photo.url }}" target="_blank" style="font-size: 0.75rem; color: var(--primary); display: inline-flex; align-items: center; gap: 0.25rem;"><i class="fa-solid fa-image"></i> View Evidence</a>
+          </div>
+          {% endif %}
           
           <div class="cn-req-date">
             <i class="fa-regular fa-calendar"></i> {{ req.created_at|date:"M d, Y • H:i" }}

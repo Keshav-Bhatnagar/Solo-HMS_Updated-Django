@@ -36,6 +36,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -77,6 +79,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Hostel.wsgi.application'
+ASGI_APPLICATION = 'Hostel.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 
 # Database
@@ -135,7 +144,7 @@ AUTH_USER_MODEL = 'Hostels.CustomUser'
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend'
 ]
-AUTH_PASSWORD_VALIDATORS = []  # Empty list
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -179,3 +188,16 @@ LOGIN_URL = '/login/'  # Redirect to login page if not authenticated
 # STRIPE API CONFIGURATION
 STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY', 'pk_test_placeholder')
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', 'sk_test_placeholder')
+
+# Email Configuration (Prints emails to the terminal for local testing)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST_USER = 'admin@campusnest.com'
+
+# --- PRODUCTION EMAIL SETTINGS (Uncomment and configure before deployment) ---
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = os.getenv('EMAIL_USER', 'your_email@gmail.com')
+# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASS', 'your_app_password')
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

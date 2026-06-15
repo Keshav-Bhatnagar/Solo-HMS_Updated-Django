@@ -14,50 +14,102 @@
   
   {% if today_menu %}
   <section class="cn-bento-hero" style="margin-bottom: 4rem;">
-    <div class="cc-hero-elite" style="border-radius: var(--radius-xl); text-align: left; padding: 4rem; display: flex; align-items: center; justify-content: space-between;">
-      <div>
+    <div class="cc-hero-elite" style="border-radius: var(--radius-xl); text-align: left; padding: 4rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 2rem; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 300px;">
         <span class="cn-badge cn-badge-warning animate-up">Today's Protocol: {{ today_menu.day }}</span>
         <h2 class="animate-up delay-1" style="font-size: 3rem; margin: 1rem 0;">{{ today_menu.meal_type }}</h2>
         <p class="animate-up delay-2" style="font-size: 1.25rem; color: var(--on-surface-muted);">{{ today_menu.menu }}</p>
       </div>
-      <div class="animate-up delay-3" style="font-size: 8rem; color: var(--surface-variant);">
-        <i class="fa-solid fa-bell-concierge"></i>
+      
+      <!-- Interactive Rating UI -->
+      <div class="animate-up delay-3" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-lg); padding: 1.5rem; width: 100%; max-width: 320px; text-align: center;">
+        <h4 style="color: var(--on-bg); margin-bottom: 0.5rem; font-size: 1.1rem;">Rate this Meal</h4>
+        <p style="font-size: 0.85rem; color: var(--on-surface-muted); margin-bottom: 1rem;">Help us improve institutional dining</p>
+        
+        <form id="ratingForm" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="stars" style="display: flex; flex-direction: row-reverse; justify-content: center; gap: 0.5rem; margin-bottom: 1rem;">
+                <input type="radio" id="star5" name="rating" value="5" style="display:none;"/><label for="star5" style="font-size:1.5rem; cursor:pointer; color:var(--outline-strong); transition:0.2s;"><i class="fa-solid fa-star"></i></label>
+                <input type="radio" id="star4" name="rating" value="4" style="display:none;"/><label for="star4" style="font-size:1.5rem; cursor:pointer; color:var(--outline-strong); transition:0.2s;"><i class="fa-solid fa-star"></i></label>
+                <input type="radio" id="star3" name="rating" value="3" style="display:none;"/><label for="star3" style="font-size:1.5rem; cursor:pointer; color:var(--outline-strong); transition:0.2s;"><i class="fa-solid fa-star"></i></label>
+                <input type="radio" id="star2" name="rating" value="2" style="display:none;"/><label for="star2" style="font-size:1.5rem; cursor:pointer; color:var(--outline-strong); transition:0.2s;"><i class="fa-solid fa-star"></i></label>
+                <input type="radio" id="star1" name="rating" value="1" style="display:none;"/><label for="star1" style="font-size:1.5rem; cursor:pointer; color:var(--outline-strong); transition:0.2s;"><i class="fa-solid fa-star"></i></label>
+            </div>
+            <button type="button" class="cn-btn cn-btn-primary cn-btn-sm" style="width: 100%;" onclick="submitMessRating()">Submit Rating</button>
+        </form>
       </div>
+      
     </div>
   </section>
+
+  <style>
+      .stars label:hover,
+      .stars label:hover ~ label,
+      .stars input:checked ~ label {
+          color: #fbbf24 !important;
+          transform: scale(1.1);
+      }
+  </style>
+  <script>
+      function submitMessRating() {
+          const rating = document.querySelector('input[name="rating"]:checked');
+          if (!rating) {
+              alert('Please select a star rating first!');
+              return;
+          }
+          const btn = document.querySelector('#ratingForm button');
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+          btn.disabled = true;
+
+          // Simulate API call
+          setTimeout(() => {
+              btn.style.background = 'var(--success)';
+              btn.style.color = '#fff';
+              btn.innerHTML = '<i class="fa-solid fa-check"></i> Recorded';
+              
+              setTimeout(() => {
+                  btn.style.background = '';
+                  btn.style.color = '';
+                  btn.innerHTML = originalText;
+                  btn.disabled = false;
+                  document.querySelectorAll('input[name="rating"]').forEach(r => r.checked = false);
+              }, 3000);
+          }, 800);
+      }
+  </script>
   {% endif %}
 
   <div style="display: grid; grid-template-columns: 1fr 300px; gap: 2rem;">
     <!-- Menu Grid -->
+    <!-- 4x7 Menu Table -->
     <div>
-      <div style="display: flex; gap: 1rem; margin-bottom: 2rem; overflow-x: auto; padding-bottom: 1rem;">
-        <a href="?day=" class="cn-btn cn-btn-sm {% if not day_filter %}cn-btn-primary{% else %}cn-btn-ghost{% endif %}">All</a>
-        {% for day in days %}
-          <a href="?day={{ day|lower }}" class="cn-btn cn-btn-sm {% if day_filter == day|lower %}cn-btn-primary{% else %}cn-btn-ghost{% endif %}">{{ day }}</a>
-        {% endfor %}
-      </div>
-
-      <div style="display: grid; gap: 1.5rem;">
-        {% for menu in menus %}
-        <div class="cn-bento-card" style="padding: 2rem; background: var(--surface-card); border: 1px solid var(--outline); border-radius: var(--radius-lg); display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <span style="color: var(--primary); font-weight: 700; font-size: 0.875rem; text-transform: uppercase;">{{ menu.day }}</span>
-            <h3 style="font-size: 1.5rem; margin: 0.5rem 0;">{{ menu.meal_type }}</h3>
-            <p style="color: var(--on-surface-muted);">{{ menu.menu }}</p>
-          </div>
-          {% if user.is_staff %}
-          <div style="display: flex; gap: 0.5rem;">
-            <a href="{% url 'set_today_menu' menu.id %}" class="cn-btn cn-btn-sm cn-btn-outline">Set Active</a>
-            <a href="{% url 'update_mess_menu' menu.id %}" class="cn-btn cn-btn-sm cn-btn-ghost"><i class="fa-solid fa-pen"></i></a>
-          </div>
-          {% endif %}
+      <div class="cn-admin-panel" style="padding: 1rem; border-radius: var(--radius-xl); overflow: hidden; background: var(--surface-card); border: 1px solid var(--outline);">
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+              <tr>
+                <th style="padding: 1rem; background: var(--bg-deep); color: var(--on-surface-muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid var(--glass-border);">Day</th>
+                <th style="padding: 1rem; background: var(--bg-deep); color: var(--on-surface-muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid var(--glass-border);">Breakfast</th>
+                <th style="padding: 1rem; background: var(--bg-deep); color: var(--on-surface-muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid var(--glass-border);">Lunch</th>
+                <th style="padding: 1rem; background: var(--bg-deep); color: var(--on-surface-muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid var(--glass-border);">Snacks</th>
+                <th style="padding: 1rem; background: var(--bg-deep); color: var(--on-surface-muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid var(--glass-border);">Dinner</th>
+                <th style="padding: 1rem; background: var(--bg-deep); color: var(--on-surface-muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid var(--glass-border);">Additional Meal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for day, meals in timetable.items %}
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 1.25rem 1rem; font-weight: 800; color: var(--primary);">{{ day }}</td>
+                <td style="padding: 1.25rem 1rem; color: var(--on-bg); font-size: 0.9375rem;">{{ meals.Breakfast }}</td>
+                <td style="padding: 1.25rem 1rem; color: var(--on-bg); font-size: 0.9375rem;">{{ meals.Lunch }}</td>
+                <td style="padding: 1.25rem 1rem; color: var(--on-bg); font-size: 0.9375rem;">{{ meals.Snacks }}</td>
+                <td style="padding: 1.25rem 1rem; color: var(--on-bg); font-size: 0.9375rem;">{{ meals.Dinner }}</td>
+                <td style="padding: 1.25rem 1rem; color: var(--on-bg); font-size: 0.9375rem;">{{ meals.AdditionalMeal }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-        {% empty %}
-        <div style="text-align: center; padding: 4rem; color: var(--on-surface-muted);">
-          <i class="fa-solid fa-plate-wheat" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-          <p>No menus scheduled for this protocol.</p>
-        </div>
-        {% endfor %}
       </div>
     </div>
 

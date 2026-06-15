@@ -45,7 +45,7 @@
       {% if user.is_authenticated and user.is_staff %}
         <a href="{% url 'admin_dashboard' %}">Dashboard</a>
       {% endif %}
-      <a href="{% url 'index' %}">Home</a>
+      <a href="{% url 'index' %}">Discover</a>
       <div class="cn-dropdown">
         <a href="#" id="services-dropdown-toggle">
           Services <i class="fa-solid fa-angle-down" style="font-size:0.75em; margin-left:2px;"></i>
@@ -53,11 +53,28 @@
         <div class="cn-dropdown-menu" role="menu">
           <a href="{% url 'room_allocation' %}" role="menuitem">Room Allocation</a>
           <a href="{% url 'payment' %}" role="menuitem">Fee Payment</a>
+          <a href="{% url 'outpass_request' %}" role="menuitem">Outpass Request</a>
           <a href="{% url 'complaint_maintenance' %}" role="menuitem">Complaints</a>
         </div>
       </div>
+      <div class="cn-dropdown">
+        <a href="#" id="connect-dropdown-toggle">
+          Connect <i class="fa-solid fa-angle-down" style="font-size:0.75em; margin-left:2px;"></i>
+        </a>
+        <div class="cn-dropdown-menu" role="menu">
+          <a href="{% url 'app2index' %}" role="menuitem">Connect Home</a>
+          <a href="{% url 'marketplace' %}" role="menuitem">Marketplace</a>
+          <a href="{% url 'mess' %}" role="menuitem">Mess Menu</a>
+          <a href="{% url 'events' %}" role="menuitem">Events Matrix</a>
+          <a href="{% url 'discussion_center' %}" role="menuitem">Discussions</a>
+          <a href="{% url 'lost_and_found_dashboard' %}" role="menuitem">Lost & Found</a>
+          {% if user.is_authenticated and user.managed_clubs.exists %}
+            <div class="cn-dropdown-divider" style="margin: 0.5rem 0; border-top: 1px solid var(--outline);"></div>
+            <a href="{% url 'club_dashboard' %}" role="menuitem" style="color: var(--warning); font-weight: 700;"><i class="fa-solid fa-crown" style="margin-right: 4px;"></i> Club Portal</a>
+          {% endif %}
+        </div>
+      </div>
       <a href="{% url 'about' %}">About</a>
-      <a href="{% url 'app2index' %}">Connect</a>
     </div>
 
     <div class="cn-nav-actions">

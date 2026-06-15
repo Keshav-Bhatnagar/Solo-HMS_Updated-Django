@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_POST
 from datetime import date
 from itertools import chain
-from .models import Form, MessMenu, MessRules, TodayMenu, DiscussionMessage, LostItem, FoundItem, ClaimRequest, MarketplaceItem
+from .models import Form, MessMenu, MessRules, TodayMenu, DiscussionMessage, LostItem, FoundItem, ClaimRequest, MarketplaceItem, Club
 from .forms import MessMenuForm, DiscussionForm, LostItemForm, FoundItemForm, ClaimRequestForm
 
 def app2index(request):
@@ -51,16 +51,29 @@ def delete(request, id):
 
 def update(request, id):
     data = Form.objects.get(id=id)
+    clubs = Club.objects.all()
     if request.method == "POST":
         data.name = request.POST.get("name")
         data.date = request.POST.get("date")
         data.time = request.POST.get("time")
         data.venue = request.POST.get("venue")
         data.description = request.POST.get('description')
-        data.organizer = request.POST.get('organizer')
+        
+        club_id = request.POST.get('club_id')
+        if club_id:
+            club = Club.objects.get(id=club_id)
+            data.club = club
+            data.organizer = club.name
+        else:
+            data.organizer = request.POST.get('organizer')
+            
+        poster = request.FILES.get('poster')
+        if poster:
+            data.poster = poster
+            
         data.save()
         return redirect('admin_form')  
-    return render(request, 'update.html', {'data': data})
+    return render(request, 'update.html', {'data': data, 'clubs': clubs})
 
 def events(request):
     today = date.today()
@@ -92,24 +105,28 @@ def mess(request):
             )
     
     # Fetch weekly menu
-    menus = MessMenu.objects.all()
+    # Build weekly timetable (4x7 table: Day + 3 Meals)
     days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    meal_types = ["Breakfast", "Lunch", "Snacks", "Dinner", "AdditionalMeal"]
     
-    # Handle day filter
-    day_filter = request.GET.get('day', '').capitalize()
-    if day_filter in days:
-        menus = menus.filter(day=day_filter)
-    else:
-        menus = menus.filter(day=today_day)
+    timetable = {}
+    for d in days:
+        timetable[d] = {m: "Not Scheduled" for m in meal_types}
+        
+    all_menus = MessMenu.objects.all()
+    for menu in all_menus:
+        if menu.day in timetable:
+            key = menu.meal_type.replace(" ", "")
+            if key in timetable[menu.day]:
+                timetable[menu.day][key] = menu.menu
 
     # Fetch mess rules
     rules = MessRules.objects.all()
     
     context = {
         'today_menu': today_menu,
-        'menus': menus,
+        'timetable': timetable,
         'days': days,
-        'day_filter': day_filter.lower() if day_filter else '',
         'rules': rules,
     }
     return render(request, 'mess.html', context)
@@ -329,3 +346,31 @@ def list_item(request):
         'categories': MarketplaceItem.CATEGORY_CHOICES,
         'conditions': MarketplaceItem.CONDITION_CHOICES
     })
+
+@login_required
+def club_dashboard(request):
+    user_clubs = Club.objects.filter(leads=request.user)
+    if not user_clubs.exists():
+        messages.error(request, 'You do not have administrative access to any clubs.')
+        return redirect('app2index')
+
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        club_id = request.POST.get('club_id')
+        event_date = request.POST.get('date')
+        time = request.POST.get('time')
+        venue = request.POST.get('venue')
+        description = request.POST.get('description')
+        poster = request.FILES.get('poster')
+        
+        club = get_object_or_404(Club, id=club_id, leads=request.user)
+        Form.objects.create(
+            name=name, club=club, date=event_date, time=time,
+            venue=venue, description=description,
+            organizer=club.name, poster=poster
+        )
+        messages.success(request, 'Event posted successfully to the Matrix.')
+        return redirect('club_dashboard')
+
+    events = Form.objects.filter(club__in=user_clubs).order_by('-date')
+    return render(request, 'club_dashboard.html', {'clubs': user_clubs, 'events': events})

@@ -74,22 +74,55 @@
 </div>
 
 <style>
+/* Premium Institutional Marketplace UI */
 .cn-marketplace-header {
-  padding: 4rem 2rem;
-  background: var(--surface);
+  padding: 5rem 2rem;
+  background: linear-gradient(135deg, var(--surface-highest), var(--bg-subtle));
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--outline);
+  position: relative;
+  overflow: hidden;
+}
+
+.cn-marketplace-header::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -10%;
+    width: 60%; height: 200%;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.cn-header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.cn-marketplace-header h1 {
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    color: var(--on-bg);
+    margin: 0.5rem 0;
+}
+
+.cn-marketplace-header p {
+    color: var(--on-surface-muted);
+    font-size: 1.1rem;
+    max-width: 500px;
 }
 
 .cn-marketplace-filters {
   padding: 1.5rem 2rem;
-  background: var(--surface-low);
+  background: var(--surface-highest);
   position: sticky;
   top: 70px;
   z-index: 100;
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid var(--outline);
+  box-shadow: var(--shadow-sm);
 }
 
 .cn-filter-bar {
@@ -107,19 +140,29 @@
 
 .cn-search-box i {
   position: absolute;
-  left: 1rem;
+  left: 1.25rem;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--on-surface-muted);
+  color: var(--primary);
+  font-size: 1.1rem;
 }
 
 .cn-search-box input {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.5rem;
-  background: var(--surface-card);
-  border: 1px solid var(--outline);
-  border-radius: var(--radius-md);
+  padding: 1rem 1rem 1rem 3rem;
+  background: var(--surface);
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
   color: var(--on-surface);
+  font-size: 1rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cn-search-box input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+  outline: none;
 }
 
 .cn-category-filters {
@@ -127,58 +170,76 @@
   gap: 0.75rem;
   overflow-x: auto;
   padding-bottom: 0.5rem;
+  scrollbar-width: none;
 }
+.cn-category-filters::-webkit-scrollbar { display: none; }
 
 .cn-filter-chip {
-  padding: 0.5rem 1rem;
-  background: var(--surface-card);
-  border: 1px solid var(--outline);
+  padding: 0.6rem 1.25rem;
+  background: transparent;
+  border: 1px solid var(--outline-strong);
   border-radius: 100px;
   font-size: 0.875rem;
+  font-weight: 600;
   white-space: nowrap;
-  transition: var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   color: var(--on-surface-muted);
+}
+
+.cn-filter-chip:hover {
+  background: var(--surface-highest);
+  color: var(--on-bg);
 }
 
 .cn-filter-chip.active {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary);
+  box-shadow: var(--shadow-md);
 }
 
 .cn-marketplace-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
-  padding: 3rem 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2.5rem;
+  padding: 4rem 2rem;
   max-width: 1400px;
   margin: 0 auto;
 }
 
 .cn-item-card {
-  background: var(--surface-card);
+  background: var(--surface);
   border: 1px solid var(--outline);
-  border-radius: var(--radius-lg);
+  border-radius: 20px;
   overflow: hidden;
-  transition: var(--transition);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .cn-item-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
   border-color: var(--primary);
 }
 
 .cn-item-image {
-  height: 200px;
+  height: 220px;
   position: relative;
   background: var(--surface-variant);
+  overflow: hidden;
 }
 
 .cn-item-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cn-item-card:hover .cn-item-image img {
+  transform: scale(1.05);
 }
 
 .cn-item-placeholder {
@@ -187,6 +248,7 @@
   align-items: center;
   justify-content: center;
   font-size: 3rem;
+  background: linear-gradient(135deg, var(--surface-highest), var(--bg-subtle));
   color: var(--on-surface-faint);
 }
 
@@ -194,70 +256,93 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  padding: 0.25rem 0.75rem;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(4px);
+  padding: 0.35rem 0.85rem;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
   color: #fff;
   border-radius: 100px;
   font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .cn-item-details {
-  padding: 1.5rem;
+  padding: 1.75rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .cn-item-meta {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 0.75rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .cn-item-cat {
   color: var(--primary);
-  font-weight: 600;
+  font-weight: 800;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .cn-item-date {
-  color: var(--on-surface-muted);
+  color: var(--on-surface-faint);
+  font-weight: 600;
 }
 
 .cn-item-details h3 {
-  font-size: 1.125rem;
-  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: var(--on-bg);
+  line-height: 1.3;
 }
 
 .cn-item-desc {
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   color: var(--on-surface-muted);
   margin-bottom: 1.5rem;
-  line-height: 1.5;
+  line-height: 1.6;
+  flex: 1;
 }
 
 .cn-item-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 1rem;
-  border-top: 1px solid var(--outline);
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--outline);
 }
 
 .cn-item-price {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--on-bg);
+}
+
+.contact-seller {
+  border-radius: 100px;
   font-weight: 700;
-  color: var(--on-surface);
+  padding: 0.6rem 1.2rem;
 }
 
 .cn-empty-state {
   grid-column: 1 / -1;
   text-align: center;
-  padding: 5rem 2rem;
+  padding: 6rem 2rem;
+  background: var(--surface-highest);
+  border-radius: var(--radius-xl);
+  border: 1px dashed var(--outline-strong);
 }
 
 .cn-empty-state i {
   font-size: 4rem;
-  color: var(--on-surface-faint);
+  color: var(--primary);
+  opacity: 0.5;
   margin-bottom: 1.5rem;
 }
 
@@ -266,6 +351,10 @@
     flex-direction: column;
     text-align: center;
     gap: 2rem;
+    padding: 3rem 1.5rem;
+  }
+  .cn-marketplace-grid {
+      padding: 2rem 1.5rem;
   }
 }
 </style>

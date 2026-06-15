@@ -20,4 +20,5 @@ urlpatterns = [
     path('add-rule/', add_mess_rule, name='add_mess_rule'),
     path('marketplace/', views.marketplace, name='marketplace'),
     path('marketplace/list/', views.list_item, name='list_item'),
+    path('club-dashboard/', views.club_dashboard, name='club_dashboard'),
 ]

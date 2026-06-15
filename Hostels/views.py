@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction, models
-from django.db.models import F, Sum, Count, Avg
+from django.db.models import F, Sum, Count, Avg, Case, When, Value, BooleanField
 from django.utils import timezone
 from django.conf import settings
 from django.core.mail import send_mail
@@ -20,11 +20,11 @@ import re
 import socket
 import logging
 import stripe
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
-from .models import CustomUser, Hostel, Room, Allocation, StudentProfile, FeePayment, ComplaintMaintenance, Feedback, EmailOTP, RoomChangeRequest
+from .models import CustomUser, Hostel, Room, Allocation, StudentProfile, FeePayment, ComplaintMaintenance, Feedback, EmailOTP, RoomChangeRequest, Outpass, LiveAnnouncement
 from .forms import SignupForm, StaffSignupForm, ProfileUpdateForm, RoomChangeRequestForm, ComplaintMaintenanceForm, FeedbackForm, EventForm, UserAdminEditForm
-from app2.models import DiscussionMessage, MessMenu, TodayMenu, MessRules, Form, ClaimRequest
+from app2.models import DiscussionMessage, MessMenu, TodayMenu, MessRules, Form, ClaimRequest, Club
 from app2.forms import MessMenuForm, MessRulesForm, DiscussionForm
 
 logger = logging.getLogger(__name__)
@@ -70,8 +70,10 @@ def login_view(request):
 
 
 
+import secrets
+
 def send_otp_email(request, email):
-    otp_code = str(random.randint(100000, 999999))
+    otp_code = str(secrets.randbelow(900000) + 100000)
     # Clear old OTPs for this email
     EmailOTP.objects.filter(email=email).delete()
     EmailOTP.objects.create(email=email, otp_code=otp_code)
@@ -166,7 +168,8 @@ def signup_view(request):
 
 
 def index(request):
-    return render(request, 'Rooms_index.html',)
+    announcements = LiveAnnouncement.objects.filter(is_active=True).order_by('-created_at')
+    return render(request, 'Rooms_index.html', {'announcements': announcements})
 
 
 # views.py
@@ -283,17 +286,15 @@ def room_allocation(request):
                     return redirect('room_allocation')
 
                 # Create allocation
-                room_id = request.POST.get('room_id')  # Adjust based on your form
-                room = Room.objects.get(id=room_id)
                 Allocation.objects.create(
                     user=request.user,
                     room=room,
                     status='pending',
                 )
 
-                # Update bed count atomically
-                room.occupied_beds = F('occupied_beds') + 1
-                room.save(update_fields=['occupied_beds'])
+                # Update bed count
+                room.occupied_beds += 1
+                room.save()
 
                 messages.success(request, 
                     f"Room {room_number} allocated successfully for {student_name}!"
@@ -356,7 +357,13 @@ def room_allocation(request):
 @require_GET
 def get_available_rooms(request):
     try:
-        rooms = Room.objects.all().annotate(
+        rooms = Room.objects.prefetch_related(
+            models.Prefetch(
+                'allocations',
+                queryset=Allocation.objects.filter(status__in=['pending', 'approved', 'confirmed']).select_related('user'),
+                to_attr='active_allocations'
+            )
+        ).annotate(
             available_beds=F('total_beds') - F('occupied_beds')
         )
         
@@ -372,14 +379,18 @@ def get_available_rooms(request):
         if ac_type:
             rooms = rooms.filter(ac_type=ac_type)
 
-        room_data = [{
-            'id': room.id,
-            'number': room.room_number,
-            'type': room.room_type,
-            'ac_type': room.ac_type,
-            'beds_left': room.available_beds,
-            'price': str(room.price)
-        } for room in rooms]
+        room_data = []
+        for room in rooms:
+            occupants = [{'name': a.user.get_full_name() or 'Student'} for a in room.active_allocations]
+            room_data.append({
+                'id': room.id,
+                'number': room.room_number,
+                'type': room.room_type,
+                'ac_type': room.ac_type,
+                'beds_left': room.available_beds,
+                'price': str(room.price),
+                'occupants': occupants
+            })
 
         print(f"Returning rooms: {room_data}")  # Debug print
         return JsonResponse({'rooms': room_data})
@@ -603,7 +614,7 @@ def post_allocation(request):
 @login_required
 def complaint_maintenance(request):
     if request.method == 'POST':
-        form = ComplaintMaintenanceForm(request.POST)
+        form = ComplaintMaintenanceForm(request.POST, request.FILES)
         if form.is_valid():
             complaint = form.save(commit=False)
             complaint.user = request.user
@@ -786,6 +797,18 @@ def dashboard(request):
             'form': form,
         })
     
+    elif active_tab == 'clubs':
+        context['clubs'] = Club.objects.all()
+        
+    elif active_tab == 'live':
+        if request.method == 'POST':
+            message = request.POST.get('message')
+            if message:
+                LiveAnnouncement.objects.create(message=message)
+                messages.success(request, 'Live announcement broadcasted.')
+                return redirect('/dashboard/?tab=live')
+        context['live_announcements'] = LiveAnnouncement.objects.all().order_by('-created_at')
+    
     elif active_tab == 'users':
         search_query = request.GET.get('search', '')
         users = CustomUser.objects.filter(is_staff=False)
@@ -796,7 +819,16 @@ def dashboard(request):
     elif active_tab == 'requests':
         status_filter = request.GET.get('status')
         search_query = request.GET.get('search', '')
-        requests = ComplaintMaintenance.objects.all()
+        
+        forty_eight_hours_ago = timezone.now() - timedelta(hours=48)
+        requests = ComplaintMaintenance.objects.all().annotate(
+            is_urgent=Case(
+                When(status='pending', created_at__lt=forty_eight_hours_ago, then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            )
+        )
+        
         if status_filter:
             requests = requests.filter(status=status_filter)
         if search_query:
@@ -843,7 +875,7 @@ def dashboard(request):
     
     elif active_tab == 'add_event':
         if request.method == 'POST':
-            form = EventForm(request.POST)
+            form = EventForm(request.POST, request.FILES)
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Event added successfully!')
@@ -1047,7 +1079,7 @@ def update_event(request, event_id):
     
     event = get_object_or_404(Form, id=event_id)
     if request.method == 'POST':
-        form = EventForm(request.POST, instance=event)
+        form = EventForm(request.POST, request.FILES, instance=event)
         if form.is_valid():
             form.save()
             messages.success(request, 'Event updated successfully!')
@@ -1292,6 +1324,27 @@ def verify_otp(request):
             messages.error(request, 'Invalid verification code.')
 
     return render(request, 'Rooms_verify_otp.html', {'email': email})
+
+@login_required
+def outpass_request(request):
+    if request.method == 'POST':
+        destination = request.POST.get('destination')
+        reason = request.POST.get('reason')
+        departure_time = request.POST.get('departure_time')
+        return_time = request.POST.get('return_time')
+        
+        Outpass.objects.create(
+            user=request.user,
+            destination=destination,
+            reason=reason,
+            departure_time=departure_time,
+            return_time=return_time
+        )
+        messages.success(request, 'Outpass request submitted successfully.')
+        return redirect('outpass_request')
+        
+    outpasses = Outpass.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'Rooms_outpass.html', {'outpasses': outpasses})
 
 
 

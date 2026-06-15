@@ -83,6 +83,15 @@
   .django-form input:focus, .django-form select:focus, .django-form textarea:focus {
     border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(124,77,255,0.2);
   }
+  .django-form input[type="file"] {
+    padding: 0.5rem; background: var(--bg-deep); border: 1px dashed var(--primary); cursor: pointer; color: var(--on-surface-muted);
+  }
+  .django-form input[type="checkbox"] {
+    width: auto; display: inline-block;
+  }
+  .django-form a {
+    color: var(--primary); font-weight: 700; text-decoration: none;
+  }
 </style>
 {% endblock %}
 
@@ -128,7 +137,7 @@
     <div class="cn-admin-panel">
       <h3 style="font-size:1.5rem; font-weight:800; color:var(--on-bg); margin-bottom:2rem;"><i class="fa-solid fa-pen-to-square" style="color:var(--primary); margin-right:8px;"></i> Provide {{ title }} Details</h3>
       
-      <form method="POST" class="django-form">
+      <form method="POST" class="django-form" enctype="multipart/form-data">
           {% csrf_token %}
           {{ form.as_p }}
           
@@ -136,7 +145,7 @@
             <button type="submit" class="cn-btn cn-btn-primary" style="padding:1rem 2rem; font-size:1rem;">
                 <i class="fa-solid fa-check-circle"></i> Complete {{ title }}
             </button>
-            <a href="{% url 'admin_dashboard' %}?tab=mess" class="cn-btn cn-btn-ghost" style="padding:1rem 2rem; border:1px solid var(--outline-variant); font-size:1rem;">
+            <a href="javascript:history.back()" class="cn-btn cn-btn-ghost" style="padding:1rem 2rem; border:1px solid var(--outline-variant); font-size:1rem;">
                 Cancel
             </a>
           </div>

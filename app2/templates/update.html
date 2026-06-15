@@ -1,66 +1,104 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="../static/images/Favicon.png" type="image/x-icon">
+{% block title %}Update Event Matrix | CampusConnect{% endblock %}
 
-    <title>Document</title>
-</head>
+{% block extra_css %}
+<style>
+  .cn-admin-layout {
+    max-width: 800px;
+    margin: 4rem auto 6rem;
+    padding: 0 1.5rem;
+  }
+  .cn-admin-panel {
+    background: var(--surface); border: 1px solid var(--glass-border); border-radius: var(--radius-xl);
+    padding: 3rem 4rem; position: relative; overflow: hidden; box-shadow: var(--shadow-card);
+  }
+  .cn-panel-title { font-size: 1.75rem; font-weight: 900; margin-bottom: 2.5rem; color: var(--on-bg); display: flex; align-items: center; gap: 0.75rem; }
+  
+  .form-group { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .form-group label { font-size: 0.8125rem; font-weight: 700; color: var(--on-surface-faint); text-transform: uppercase; letter-spacing: 0.05em; }
+  .form-control {
+    width: 100%; padding: 0.875rem 1rem; background: var(--bg-deep); border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-md); color: var(--on-bg); font-family: var(--font); transition: all var(--transition);
+  }
+  .form-control:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(124,77,255,0.2); }
+  
+  .poster-preview {
+    display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--bg-deep);
+    border: 1px solid var(--outline-variant); border-radius: var(--radius-md); margin-bottom: 0.5rem;
+  }
+  .poster-preview img { height: 60px; width: 60px; object-fit: cover; border-radius: 8px; box-shadow: var(--shadow-sm); }
+</style>
+{% endblock %}
 
-<body>
-    {% extends 'base.html' %}
+{% block content %}
+<div class="cn-admin-layout">
+  <div class="cn-admin-panel">
+    <h2 class="cn-panel-title"><i class="fa-solid fa-pen-to-square" style="color:var(--primary);"></i> Event Matrix Configuration</h2>
+    
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
 
-    {% block content %}
-    <div class="container mt-5">
-        <h2 class="mb-4">✏️ Update Event</h2>
-        <form method="POST">
-            {% csrf_token %}
+        <div class="form-group">
+            <label for="club_id">Host Club / Society</label>
+            <select class="form-control" id="club_id" name="club_id">
+                <option value="">Select Club (Optional)</option>
+                {% for club in clubs %}
+                    <option value="{{ club.id }}" {% if data.club.id == club.id %}selected{% endif %}>{{ club.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-            <div class="mb-3">
-                <label for="eventName" class="form-label">Event Name</label>
-                <input type="text" class="form-control" id="eventName" name="name" value="{{ data.name }}"
-                    placeholder="Enter event name" required>
+        <div class="form-group">
+            <label for="eventName">Event Title</label>
+            <input type="text" class="form-control" id="eventName" name="name" value="{{ data.name }}" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="eventDate">Date</label>
+                <input type="date" class="form-control" id="eventDate" name="date" value="{{ data.date|date:'Y-m-d' }}" required>
             </div>
-
-
-            <div class="mb-3">
-                <label for="organizer" class="form-label">Organizer</label>
-                <input type="text" class="form-control" id="organizer" name="organizer" value="{{ event.organizer }}"
-                    placeholder="Enter organizer's name">
+            <div class="form-group">
+                <label for="eventTime">Time</label>
+                <input type="time" class="form-control" id="eventTime" name="time" value="{{ data.time|time:'H:i' }}" required>
             </div>
-            <div class="mb-3">
-                <label for="eventDate" class="form-label">Date</label>
-                <input type="date" class="form-control" id="eventDate" name="date" value="{{ data.date }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="venue">Venue Location</label>
+            <input type="text" class="form-control" id="venue" name="venue" value="{{ data.venue }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Event Description</label>
+            <textarea class="form-control" id="description" name="description" rows="5" required>{{ data.description }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="poster">Event Poster</label>
+            {% if data.poster %}
+            <div class="poster-preview">
+                <img src="{{ data.poster.url }}" alt="Poster">
+                <div>
+                    <div style="font-weight: 700; color: var(--on-bg);">Current Poster</div>
+                    <div style="font-size: 0.75rem; color: var(--on-surface-muted);">Upload a new image below to replace it.</div>
+                </div>
             </div>
+            {% endif %}
+            <input type="file" class="form-control" id="poster" name="poster" accept="image/*" style="padding: 0.5rem; border: 1px dashed var(--primary); cursor: pointer;">
+        </div>
 
-            <div class="mb-3">
-                <label for="eventTime" class="form-label">Time</label>
-                <input type="time" class="form-control" id="eventTime" name="time" value="{{ data.time }}" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="venue" class="form-label">Venue</label>
-                <input type="text" class="form-control" id="venue" name="venue" value="{{ data.venue }}"
-                    placeholder="Enter venue" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <textarea class="form-control" id="description" name="description"
-                    rows="4">{{ data.description }}</textarea>
-            </div>
-
-
-            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                <button type="submit" class="btn btn-success btn-lg me-2">✅ Update</button>
-                <a href="{% url 'admin_form' %}" class="btn btn-secondary btn-lg">↩️ Cancel</a>
-            </div>
-        </form>
-    </div>
-    {% endblock %}
-
-</body>
-
-</html>
+        <div style="display:flex; gap:1rem; margin-top:3rem;">
+            <button type="submit" class="cn-btn cn-btn-primary" style="padding:1rem 2rem; font-size:1rem;">
+                <i class="fa-solid fa-check-circle"></i> Commit Updates
+            </button>
+            <a href="javascript:history.back()" class="cn-btn cn-btn-ghost" style="padding:1rem 2rem; border:1px solid var(--outline-variant); font-size:1rem;">
+                Cancel
+            </a>
+        </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

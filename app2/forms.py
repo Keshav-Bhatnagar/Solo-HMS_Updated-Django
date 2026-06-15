@@ -18,7 +18,9 @@ class MessMenuForm(forms.ModelForm):
             'meal_type': forms.Select(choices=[
                 ('Breakfast', 'Breakfast'),
                 ('Lunch', 'Lunch'),
+                ('Snacks', 'Snacks'),
                 ('Dinner', 'Dinner'),
+                ('Additional Meal', 'Additional Meal'),
             ]),
             'menu': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Enter menu details...', 'class': 'form-control'}),
         }

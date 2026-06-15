@@ -42,12 +42,21 @@ class StudentProfile(models.Model):
     contact_number = models.CharField(max_length=15, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True)
     bio = models.TextField(blank=True)
+    gender = models.CharField(max_length=10, choices=[('M', 'Male'), ('F', 'Female'), ('O', 'Other')], null=True, blank=True)
+    course = models.CharField(max_length=100, blank=True)
+    year_of_study = models.PositiveIntegerField(null=True, blank=True)
     
     def __str__(self):
         return f"{self.user.get_full_name()}'s Profile"
 
 class Hostel(models.Model):
+    HOSTEL_TYPES = (
+        ('Boys', 'Boys Hostel'),
+        ('Girls', 'Girls Hostel'),
+        ('Co-ed', 'Co-ed Hostel'),
+    )
     name = models.CharField(max_length=100)
+    hostel_type = models.CharField(max_length=10, choices=HOSTEL_TYPES, default='Boys')
     total_floors = models.PositiveIntegerField()
     main_image = models.ImageField(upload_to='hostels/')
     features = models.TextField(help_text="Comma-separated list of features")
@@ -100,11 +109,13 @@ class Allocation(models.Model):
         ('approved', 'Approved'),
         ('confirmed', 'Confirmed'),
         ('rejected', 'Rejected'),
+        ('vacated', 'Vacated'),
     )
     
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='allocations')
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='allocations')
     allocation_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(null=True, blank=True, help_text="Date when the student vacates the room")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -166,7 +177,6 @@ class FeePayment(models.Model):
     allocation = models.ForeignKey(Allocation, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateTimeField(auto_now_add=True)
-    transaction_id = models.CharField(max_length=100, unique=True)
     status = models.CharField(max_length=10, choices=PAYMENT_STATUS, default='pending')
     receipt = models.FileField(upload_to='payment_receipts/', null=True, blank=True)
 
@@ -186,9 +196,11 @@ class ComplaintMaintenance(models.Model):
     
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     request_type = models.CharField(max_length=20, choices=REQUEST_TYPES)
-    room_number = models.CharField(max_length=10)
+    room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True, blank=True, help_text="Linked database room")
+    room_number = models.CharField(max_length=10, help_text="Legacy or manual room number entry")
     category = models.CharField(max_length=50)
     details = models.TextField()
+    photo = models.ImageField(upload_to='complaints/', blank=True, null=True)
     status = models.CharField(max_length=20, default='pending', choices=(('pending', 'Pending'), ('resolved', 'Resolved')))
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -224,6 +236,23 @@ class EmailOTP(models.Model):
     def __str__(self):
         return f"OTP for {self.email} - {'Verified' if self.is_verified else 'Pending'}"
 
+class Outpass(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    )
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='outpasses')
+    destination = models.CharField(max_length=200)
+    reason = models.TextField()
+    departure_time = models.DateTimeField()
+    return_time = models.DateTimeField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.destination}"
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -237,3 +266,12 @@ def save_user_profile(sender, instance, **kwargs):
     if not instance.is_staff and not instance.is_superuser:
         if hasattr(instance, 'student_profile'):
             instance.student_profile.save()
+
+class LiveAnnouncement(models.Model):
+    message = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.message
+

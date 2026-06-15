@@ -201,6 +201,8 @@
         <div class="cn-card-header">
           <h2 class="cn-card-title"><i class="fa-solid fa-bed"></i> Residency Details</h2>
           {% if allocation %}
+            {% if allocation.status == 'allocated' %}
+              <div class="cn-status-badge cn-status-success"><i class="fa-solid fa-check-circle"></i> Allocated</div>
             {% elif allocation.status == 'approved' %}
               <div class="cn-status-badge cn-status-info"><i class="fa-solid fa-thumbs-up"></i> Approved & Ready for Payment</div>
             {% elif allocation.status == 'rejected' %}

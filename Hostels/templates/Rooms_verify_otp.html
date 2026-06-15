@@ -41,41 +41,196 @@
 </main>
 
 <style>
-.cn-verification-info {
-  text-align: center;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: var(--surface-variant);
-  border-radius: var(--radius-md);
+/* Premium OTP Verification UI */
+.cn-portal {
+  min-height: calc(100vh - 70px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--surface-highest), var(--bg-subtle));
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
 }
 
-.cn-verify-email {
-  display: block;
-  font-weight: 600;
-  color: var(--primary);
-  margin-top: 0.5rem;
-  word-break: break-all;
+.cn-portal::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle at center, rgba(37, 99, 235, 0.05) 0%, transparent 50%);
+  pointer-events: none;
 }
 
-#otp {
-  letter-spacing: 0.5rem;
-  font-size: 1.25rem;
-  font-weight: 700;
-  text-align: center;
+.cn-auth-card {
+  max-width: 480px;
+  width: 100%;
+  background: var(--surface-highest);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--outline);
+  box-shadow: var(--shadow-xl);
+  border-radius: 24px;
+  padding: 3rem 2.5rem;
+  position: relative;
+  z-index: 10;
 }
 
 .cn-brand-icon {
-  width: 64px;
-  height: 64px;
-  background: var(--primary-container);
-  color: var(--primary);
+  width: 72px;
+  height: 72px;
+  background: var(--surface);
+  border: 1px solid var(--outline);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 2rem;
   margin: 0 auto 1.5rem;
-  border: 4px solid var(--outline-variant);
+  box-shadow: var(--shadow-md);
+  border: 4px solid var(--surface-highest);
+}
+
+.cn-auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.cn-auth-header h1 {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--on-bg);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.5rem;
+}
+
+.cn-auth-header p {
+  color: var(--on-surface-muted);
+  font-size: 0.95rem;
+}
+
+.cn-verification-info {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  padding: 1.25rem;
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px dashed rgba(16, 185, 129, 0.3);
+  border-radius: 16px;
+}
+
+.cn-verification-info p {
+  color: var(--on-surface-muted);
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.cn-verify-email {
+  display: block;
+  font-weight: 800;
+  color: #059669;
+  font-size: 1.1rem;
+  word-break: break-all;
+}
+
+.cn-input-group {
+  margin-bottom: 2rem;
+}
+
+.cn-input-label {
+  display: block;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--on-surface-muted);
+  margin-bottom: 1rem;
+}
+
+.cn-input-wrapper {
+  position: relative;
+}
+
+.cn-input-wrapper i {
+  position: absolute;
+  left: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary);
+  font-size: 1.25rem;
+  z-index: 2;
+}
+
+#otp {
+  width: 100%;
+  padding: 1.25rem 1.25rem 1.25rem 3.5rem;
+  background: var(--surface);
+  border: 2px solid var(--outline);
+  border-radius: 16px;
+  font-size: 1.75rem;
+  font-weight: 900;
+  letter-spacing: 0.75rem;
+  text-align: center;
+  color: var(--on-bg);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+}
+
+#otp:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+  outline: none;
+}
+
+#otp::placeholder {
+  color: var(--outline-strong);
+  letter-spacing: 0.75rem;
+}
+
+.cn-btn-primary {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: none;
+  border-radius: 100px;
+  padding: 1.25rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+  transition: all 0.3s ease;
+}
+
+.cn-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 25px rgba(16, 185, 129, 0.3);
+}
+
+.cn-auth-footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--outline);
+}
+
+.cn-auth-footer p {
+  color: var(--on-surface-muted);
+  font-size: 0.9rem;
+}
+
+.cn-auth-footer a {
+  color: #10b981;
+  font-weight: 700;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.cn-auth-footer a:hover {
+  color: #047857;
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .cn-auth-card { padding: 2rem 1.5rem; }
+  #otp { font-size: 1.5rem; letter-spacing: 0.5rem; }
 }
 </style>
 {% endblock %}

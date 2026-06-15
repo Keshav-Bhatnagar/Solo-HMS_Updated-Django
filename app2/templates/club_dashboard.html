@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Club Command Center | CampusConnect{% endblock %}
+
+{% block content %}
+<div class="cn-subheader" style="padding: 6rem 2rem 4rem; background: linear-gradient(135deg, var(--surface), var(--surface-raised));">
+  <span class="cn-badge cn-badge-primary" style="margin-bottom: 1.5rem;">Leadership Access</span>
+  <h1 style="font-size: 3.5rem;">Club Command Center</h1>
+  <p style="font-size: 1.25rem; max-width: 600px; margin: 1rem auto;">Manage your institutional societies, coordinate events, and build your community presence.</p>
+</div>
+
+<div class="container" style="padding: 2rem 1.5rem 6rem;">
+
+  <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 3rem;">
+    
+    <!-- Left Column: Post Event -->
+    <div>
+      <div style="background: var(--surface-card); border: 1px solid var(--outline); border-radius: var(--radius-lg); padding: 2rem; position: sticky; top: 100px;">
+        <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; color: var(--primary);">
+          <i class="fa-solid fa-bullhorn"></i> Post New Event
+        </h3>
+        
+        <form method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 1.25rem;">
+          {% csrf_token %}
+          
+          <div class="form-group">
+            <label>Select Club</label>
+            <select name="club_id" required>
+              {% for club in clubs %}
+                <option value="{{ club.id }}">{{ club.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Event Name</label>
+            <input type="text" name="name" required placeholder="e.g., Annual Tech Symposium">
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" name="date" required>
+            </div>
+            <div class="form-group">
+              <label>Time</label>
+              <input type="time" name="time" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Venue</label>
+            <input type="text" name="venue" required placeholder="e.g., Main Auditorium">
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" rows="4" required placeholder="Describe your event..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Event Poster</label>
+            <input type="file" name="poster" accept="image/*" style="padding: 0.5rem; border: 1px dashed var(--outline); background: transparent;">
+          </div>
+
+          <button type="submit" class="cn-btn cn-btn-primary" style="margin-top: 1rem;">
+            Launch Event Protocol
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right Column: My Clubs & Events -->
+    <div>
+      <h3 style="font-size: 1.75rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--outline);">Your Societies</h3>
+      
+      <div style="display: flex; gap: 1rem; margin-bottom: 3rem; flex-wrap: wrap;">
+        {% for club in clubs %}
+        <div style="background: var(--surface); border: 1px solid var(--primary); padding: 1.5rem; border-radius: var(--radius-lg); flex: 1; min-width: 250px; display: flex; align-items: center; gap: 1.5rem;">
+          {% if club.logo %}
+            <img src="{{ club.logo.url }}" alt="Logo" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+          {% else %}
+            <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--primary-container); color: var(--primary); display: grid; place-items: center; font-size: 1.5rem; font-weight: bold;">
+              {{ club.name|make_list|first }}
+            </div>
+          {% endif %}
+          <div>
+            <h4 style="font-size: 1.25rem; margin-bottom: 0.25rem;">{{ club.name }}</h4>
+            <span style="font-size: 0.8rem; color: var(--on-surface-muted);"><i class="fa-solid fa-crown" style="color: var(--warning);"></i> Lead Manager</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <h3 style="font-size: 1.75rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--outline);">Event Matrix History</h3>
+      
+      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        {% for event in events %}
+        <div style="padding: 1.5rem; background: var(--surface-card); border-radius: var(--radius-lg); border: 1px solid var(--outline); display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h4 style="font-size: 1.25rem; margin-bottom: 0.25rem;">{{ event.name }}</h4>
+            <div style="font-size: 0.875rem; color: var(--on-surface-muted); display: flex; gap: 1rem;">
+              <span><i class="fa-solid fa-calendar"></i> {{ event.date|date:"M d, Y" }}</span>
+              <span><i class="fa-solid fa-shield-halved"></i> {{ event.club.name }}</span>
+            </div>
+          </div>
+          {% if event.is_archived %}
+            <span class="cn-badge" style="background: var(--surface-low); color: var(--on-surface-muted); border: 1px solid var(--outline);">Archived</span>
+          {% else %}
+            <span class="cn-badge" style="background: rgba(34, 197, 94, 0.1); color: var(--success); border: 1px solid rgba(34, 197, 94, 0.3);">Active</span>
+          {% endif %}
+        </div>
+        {% empty %}
+        <p style="color: var(--on-surface-faint);">You haven't posted any events yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<style>
+.form-group label {
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--on-surface-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+.form-group input[type="text"], .form-group input[type="date"], .form-group input[type="time"], .form-group select, .form-group textarea {
+  width: 100%;
+  padding: 0.875rem;
+  background: var(--bg);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-md);
+  color: var(--on-bg);
+  font-family: inherit;
+  font-size: 1rem;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+</style>
+{% endblock %}

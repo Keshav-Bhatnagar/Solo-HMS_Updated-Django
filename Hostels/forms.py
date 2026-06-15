@@ -94,7 +94,7 @@ class PaymentForm(forms.ModelForm):
 class ComplaintMaintenanceForm(forms.ModelForm):
     class Meta:
         model = ComplaintMaintenance
-        fields = ['request_type', 'room_number', 'category', 'details']
+        fields = ['request_type', 'room_number', 'category', 'details', 'photo']
 
 from django import forms
 from .models import Feedback
@@ -138,7 +138,7 @@ from app2.models import Form
 class EventForm(forms.ModelForm):
     class Meta:
         model = Form
-        fields = ['name', 'date', 'time', 'venue', 'organizer' ,'description']
+        fields = ['name', 'club', 'date', 'time', 'venue', 'organizer', 'description', 'poster']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
             'time': forms.TimeInput(attrs={'type': 'time'}),

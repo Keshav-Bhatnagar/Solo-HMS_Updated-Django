@@ -103,7 +103,7 @@
 
   <div class="chat-container">
     <div class="chat-messages" id="chat-window">
-      {% for msg in chat_messages %}
+      {% for msg in chat_messages reversed %}
         {% if msg.is_notification %}
            <div class="msg-wrapper msg-notification">
              <div class="msg-bubble">{{ msg.message }}</div>
@@ -141,30 +141,50 @@
   // Initial scroll
   scrollBottom();
 
-  // Async polling for new messages
-  let isUpdating = false;
-  setInterval(async () => {
-    if (isUpdating) return;
-    isUpdating = true;
-    try {
-      const resp = await fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-      if (resp.ok) {
-        const html = await resp.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const newContent = doc.getElementById('chat-window').innerHTML;
-        
-        if (newContent !== chatWindow.innerHTML) {
-          const wasAtBottom = chatWindow.scrollHeight - chatWindow.scrollTop <= chatWindow.clientHeight + 100;
-          chatWindow.innerHTML = newContent;
-          if (wasAtBottom) scrollBottom();
-        }
-      }
-    } catch (e) {
-      console.error("Polling error:", e);
-    } finally {
-      isUpdating = false;
+  // Set up WebSocket connection
+  const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+  const chatSocket = new WebSocket(protocol + window.location.host + '/ws/discussion/');
+
+  chatSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    const isSelf = data.user_id === {{ request.user.id }};
+    const wrapper = document.createElement('div');
+
+    if (data.is_notification) {
+      wrapper.className = 'msg-wrapper msg-notification';
+      wrapper.innerHTML = `<div class="msg-bubble">${data.message}</div>`;
+    } else {
+      wrapper.className = `msg-wrapper ${isSelf ? 'msg-self' : 'msg-other'}`;
+      wrapper.innerHTML = `
+        <div class="msg-meta">
+          <span>${data.user}</span>
+          <span>• just now</span>
+        </div>
+        <div class="msg-bubble">${data.message}</div>
+      `;
     }
-  }, 3000);
+
+    chatWindow.appendChild(wrapper);
+    scrollBottom();
+  };
+
+  chatSocket.onclose = function(e) {
+    console.error('Chat socket closed unexpectedly');
+  };
+
+  // Handle form submission via WebSocket
+  const chatForm = document.getElementById('chat-form');
+  const messageInput = document.getElementById('id_message');
+
+  chatForm.onsubmit = function(e) {
+    e.preventDefault();
+    const message = messageInput.value.trim();
+    if (message) {
+      chatSocket.send(JSON.stringify({
+        'message': message
+      }));
+      messageInput.value = '';
+    }
+  };
 </script>
 {% endblock %}
